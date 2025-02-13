@@ -5,38 +5,38 @@ const cardTemplate = document.querySelector("#card-template").content;
 const placesList = document.querySelector(".places__list"); // контейнер карточек
 
 // @todo: Функция создания карточки
-createPlaceCard = (card) => {
+createCard = (card, handler = deleteCards) => {
   // Клонирование карточки по шаблону
-  const newPlaceCard = cardTemplate
+  const newCard = cardTemplate
     .querySelector(".places__item.card")
     .cloneNode(true);
-  // Если создан, то инициализируем
-  if (newPlaceCard) {
-    // Заполнение данными клона карточки
-    newPlaceCard.querySelector(".card__image").src = card.link;
-    newPlaceCard.querySelector(".card__title").textContent = card.name;
+  // Если клон успешно создан, то его инициализация
+  if (newCard) {
+    // Данные карточки
+    newCard.querySelector(".card__image").src = card.link;
+    newCard.querySelector(".card__title").textContent = card.name;
     // Обработчик удаления карточки
-    const deleteButton = newPlaceCard.querySelector(".card__delete-button");
+    const deleteButton = newCard.querySelector(".card__delete-button");
     deleteButton.addEventListener("click", () => {
-      deletePlaceCard(newPlaceCard); // или newPlaceCard.remove();
+      handler(newCard);
     });
   }
-  return newPlaceCard;
+  return newCard;
 };
 
 // @todo: Функция удаления карточки
-deletePlaceCard = (card) => {
-  if (card) card.remove();
-};
-
-// @todo: Вывести карточки на страницу
-appendCards = (cards, cardList) => {
+deleteCards = (...cards) => {
   cards.forEach((card) => {
-    const newCard = createPlaceCard(card);
-    // cardList.append(createPlaceCard(card));
-    if (newCard) cardList.append(newCard);
-    console.log('ok');
+    if (card) card.remove();
   });
 };
 
-appendCards(initialCards, placesList);
+// @todo: Вывести карточки на страницу
+appendCards = (cardList, ...cards) => {
+  cards.forEach((card) => {
+    const newCard = createCard(card);
+    if (newCard) cardList.append(newCard);
+  });
+};
+
+appendCards(placesList, ...initialCards);

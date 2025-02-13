@@ -7,7 +7,7 @@ https://github.com/vvk2020/mesto-project-ff
 1. 
 
 ## 💡 To-Do (❗ ‼️ ⁉️ ❕ ❔):
-
+1. Добавить проверки на null и пр.
 
 ## 📌 Notes & Recommendations
 1. 

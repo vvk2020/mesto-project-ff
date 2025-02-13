@@ -10,25 +10,32 @@ createPlaceCard = (card) => {
   const newPlaceCard = cardTemplate
     .querySelector(".places__item.card")
     .cloneNode(true);
-  // Заполнение данными клона карточки
-  newPlaceCard.querySelector(".card__image").src = card.link;
-  newPlaceCard.querySelector(".card__title").textContent = card.name;
-  // Обработчик удаления карточки
-  const deleteButton = newPlaceCard.querySelector(".card__delete-button");
-  deleteButton.addEventListener("click", () => {
-    newPlaceCard.remove();
-  });
+  // Если создан, то инициализируем
+  if (newPlaceCard) {
+    // Заполнение данными клона карточки
+    newPlaceCard.querySelector(".card__image").src = card.link;
+    newPlaceCard.querySelector(".card__title").textContent = card.name;
+    // Обработчик удаления карточки
+    const deleteButton = newPlaceCard.querySelector(".card__delete-button");
+    deleteButton.addEventListener("click", () => {
+      deletePlaceCard(newPlaceCard); // или newPlaceCard.remove();
+    });
+  }
   return newPlaceCard;
 };
 
 // @todo: Функция удаления карточки
-
-// FIXME: нужна ли отдельная функция ?
+deletePlaceCard = (card) => {
+  if (card) card.remove();
+};
 
 // @todo: Вывести карточки на страницу
 appendCards = (cards, cardList) => {
   cards.forEach((card) => {
-    cardList.append(createPlaceCard(card));
+    const newCard = createPlaceCard(card);
+    // cardList.append(createPlaceCard(card));
+    if (newCard) cardList.append(newCard);
+    console.log('ok');
   });
 };
 

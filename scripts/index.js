@@ -5,7 +5,7 @@ const cardTemplate = document.querySelector("#card-template").content;
 const cardsContainer = document.querySelector(".places__list"); // контейнер карточек
 
 // @todo: Функция создания карточки
-const createCard = (card, handler = deleteCards) => {
+const createCard = (card, handler = deleteCard) => {
   // Клонирование карточки по шаблону
   const newCard = cardTemplate
     .querySelector(".places__item.card")
@@ -26,7 +26,7 @@ const createCard = (card, handler = deleteCards) => {
 };
 
 // @todo: Функция удаления карточки
-const deleteCards = (card) => {
+const deleteCard = (card) => {
   if (card) card.remove();
 };
 

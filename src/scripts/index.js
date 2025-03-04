@@ -1,19 +1,5 @@
 import { initialCards } from './cards.js'
 import '../pages/index.css';
-/*
-import addIcon from '../images/add-icon.svg';
-import card_1 from '../images/card_1.jpg';
-import card_2 from '../images/card_2.jpg';
-import card_3 from '../images/card_3.jpg';
-import closeIcon from '../images/close.svg';
-import deleteIcon from '../images/delete-icon.svg';
-import editIcon from '../images/edit-icon.svg';
-import likeActive from '../images/like-active.svg';
-import likeInactive from '../images/like-inactive.svg';
-*/
-// Добавленные
-// import avatar from '../images/avatar.jpg';
-// import logo from '../images/logo.svg';
 
 // @todo: Темплейт карточки
 const cardTemplate = document.querySelector("#card-template").content;

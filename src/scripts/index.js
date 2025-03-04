@@ -1,5 +1,5 @@
-import { initialCards } from './cards.js'
-import '../pages/index.css';
+import { initialCards } from "./cards.js";
+import "../pages/index.css";
 
 // @todo: Темплейт карточки
 const cardTemplate = document.querySelector("#card-template").content;
@@ -16,8 +16,11 @@ const createCard = (card, handler = deleteCard) => {
   // Если клон успешно создан, то его инициализация
   if (newCard) {
     // Данные карточки
-    newCard.querySelector(".card__image").src = card.link;
-    newCard.querySelector(".card__image").alt = card.name;
+    const cardImage = newCard.querySelector(".card__image");
+    cardImage.src = card.link;
+    cardImage.alt = card.name;
+    // try: (newCard.querySelector(".card__image") = {src: card.link, alt: card.name });
+
     newCard.querySelector(".card__title").textContent = card.name;
     // Обработчик удаления карточки
     const deleteButton = newCard.querySelector(".card__delete-button");

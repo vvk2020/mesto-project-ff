@@ -19,8 +19,6 @@ const createCard = (card, handler = deleteCard) => {
     const cardImage = newCard.querySelector(".card__image");
     cardImage.src = card.link;
     cardImage.alt = card.name;
-    // try: (newCard.querySelector(".card__image") = {src: card.link, alt: card.name });
-
     newCard.querySelector(".card__title").textContent = card.name;
     // Обработчик удаления карточки
     const deleteButton = newCard.querySelector(".card__delete-button");

@@ -43,3 +43,17 @@ const appendCards = (cardList, ...cards) => {
 };
 
 appendCards(cardsContainer, ...initialCards);
+
+/* Редактирование профиля */
+
+const profileEditButton = document.querySelector(".profile__edit-button");
+const popupEditProfile = document.querySelector(".popup_type_edit");
+// console.log(`profileEditButton: `, profileEditButton);
+// console.log(`popupEditProfile: `, popupEditProfile);
+profileEditButton.addEventListener("click", () => {
+  // console.log(`onclick popupEditProfile!`);
+  // popupEditProfile.classList.add('profile');
+  popupEditProfile.classList.add('popup_is-opened');
+  popupEditProfile.showModal();
+  
+})

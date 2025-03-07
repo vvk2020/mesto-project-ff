@@ -44,16 +44,53 @@ const appendCards = (cardList, ...cards) => {
 
 appendCards(cardsContainer, ...initialCards);
 
-/* Редактирование профиля */
+/***  Редактирование профиля ***/
 
 const profileEditButton = document.querySelector(".profile__edit-button");
 const popupEditProfile = document.querySelector(".popup_type_edit");
-// console.log(`profileEditButton: `, profileEditButton);
-// console.log(`popupEditProfile: `, popupEditProfile);
-profileEditButton.addEventListener("click", () => {
-  // console.log(`onclick popupEditProfile!`);
-  // popupEditProfile.classList.add('profile');
-  popupEditProfile.classList.add('popup_is-opened');
-  popupEditProfile.showModal();
-  
-})
+const profileCloseButton = document.querySelector(
+  ".popup_type_edit .popup__close"
+);
+
+// Назначение обработчика открытия окна редактирования профиля по ✏️
+profileEditButton.addEventListener("click", openPopup);
+
+// Обработчик открытия модального окна по ✏️
+function openPopup() {
+  popupEditProfile.classList.add("popup_is-opened");
+  attachPopupEvents(); // обработчики событий, которые работают, когда окно открыто
+}
+
+// Обработчик click по ❌ модального окна
+function closePopup() {
+  popupEditProfile.classList.remove("popup_is-opened");
+  detachPopupEvents(); // удаление обработчиков событий
+}
+
+// Функция назначения обработчиков событий модального окна
+function attachPopupEvents() {
+  // закрыть окно по ❌
+  profileCloseButton.addEventListener("click", closePopup);
+  // закрыть окно по Esc
+  document.addEventListener("keydown", handleEsc);
+  // закрыть окно по click вне границ окна
+  popupEditProfile.addEventListener("click", handleClickOutside);
+}
+
+// Функция удаления обработчиков событий модального окна
+function detachPopupEvents() {
+  profileCloseButton.removeEventListener("click", closePopup);
+  document.removeEventListener("keydown", handleEsc);
+  popupEditProfile.removeEventListener("click", handleClickOutside);
+}
+
+// Обработчик закрытия модального окна по Esc
+function handleEsc(event) {
+  if (event.key === "Escape") closePopup();
+}
+
+// Обработчик закрытия модального окна по click вне его границ 
+function handleClickOutside(evt) {
+  const isInsideClick = !!evt.target.closest(".popup__content");
+  if (!isInsideClick) closePopup();
+}

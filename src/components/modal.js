@@ -3,28 +3,23 @@ export default (function modal() {
     buttonOpen - кнопка открытия модального окна
     buttonClose  - кнопка закрытия модального окна
     popup - модальное окно
+    openIt - флаг необходимости открытия модального окна
 */
 
   class Popup {
-    constructor(selectorPopup, selectorButtonOpen) {
-      try {
-        console.clear();
-        // Инициализация ссылок на popup и кнопку его закрытия
-        if (selectorPopup.trim()) {
-          this.popup = document.querySelector(selectorPopup);
-          if (this.popup)
-            this.buttonClose = this.popup.querySelector(
-              selectorPopup + " .popup__close"
-            );
-        }
-        // Назначение обработчика открытия окна редактирования профиля по кнопке ✏️
-        if (selectorButtonOpen.trim()) {
-          this.buttonOpen = document.querySelector(selectorButtonOpen);
+    constructor(popup, buttonOpen, openIt = false) {
+      console.clear();
+      if (popup) {
+        this.popup = popup; // модальное онко
+        // Определение кнопки закрытия модального окна
+        this.buttonClose = this.popup.querySelector(".popup__close");
+        // Назначение обработчика открытия окна редактирования профиля по кнопке ✏️ (если задан)
+        if (buttonOpen) {
+          this.buttonOpen = buttonOpen;
           this.attachEvent("click", this.openPopup, this.buttonOpen);
         }
-      } catch (err) {
-        this.error = err; // для последующей обработки ошибки
-        console.log(err);
+        // Открыть зщзгз сразу?
+        if (openIt) this.openPopup();
       }
     }
 
@@ -88,51 +83,33 @@ export default (function modal() {
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    function collectPopups(selectorPopup, selectorButtonOpen) {
-      // try {
-      //   // Инициализация
-      //   if (selectorPopup.trim()) {
-      //     popup = document.querySelectorAll(selectorPopup);
-      //     // if (this.popup)
-      //     //   this.buttonClose = this.popup.querySelector(
-      //     //     selectorPopup + " .popup__close"
-      //     //   );
-      //   }
-      //   if (selectorButtonOpen.trim())
-      //     this.buttonOpen = document.querySelector(selectorButtonOpen);
-      //   // Назначение обработчика открытия окна редактирования профиля по кнопке ✏️
-      //   this.attachEvent("click", this.openPopup, this.buttonOpen);
-      // } catch (err) {
-      //   this.error = err; // для последующей обработки ошибки
-      //   console.log(err);
-      // }
-    }
+    // Popup редактирования профиля и кнопка его открытия
+    const popupEditProfile = document.querySelector(".popup_type_edit");
+    const buttonEditProfile = document.querySelector(".profile__edit-button");
 
-    // Массив popup-объектов
+    // Popup добавления новой карточки и кнопка его открытия
+    const popupNewCard = document.querySelector(".popup_type_new-card");
+    const buttonAddCard = document.querySelector(".profile__add-button");
+
+    // Popup просмотра карточки
+    const popupImageCard = document.querySelector(".popup_type_image");
+    // const buttonOpenImageCard = document.querySelector(".card__image");
+
+    // Массив статически обрабатываемых popup-объектов
     const Popups = [
-      new Popup(".popup_type_edit", ".profile__edit-button"),
-      new Popup(".popup_type_new-card", ".profile__add-button"),
-      // new Popup(".popup_type_image", ".card__image"),
+      new Popup(popupEditProfile, buttonEditProfile),
+      new Popup(popupNewCard, buttonAddCard),
     ];
 
+    // Список карточек и назначение ему  обработчика для onclick
+    const cardsList = document.querySelector(".places__list");
+    cardsList.addEventListener("click", clickCard);
+
+    // Динамическое назначение обработчиков закрытия выбранной карточке
     function clickCard(evt) {
-      console.log(evt.target);
+      if (evt.target.classList.contains("card__image")) {
+        Popups.push(new Popup(popupImageCard, null, true));
+      }
     }
-
-    (() => {
-      console.log("ok777");
-      // Список карточек
-      const cardsList = document.querySelector(".places__list");
-      console.log(cardsList);
-
-      cardsList.addEventListener("click", clickCard);
-
-      // const cardsArray = Array.from(cards);
-      // cardsArray.forEach((card) => {
-      //   console.log(card);
-      // });
-    })();
-
-    // Popups
   });
 })();

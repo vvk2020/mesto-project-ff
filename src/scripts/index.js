@@ -1,4 +1,4 @@
-import initialCards from "./cards.js";
+import initialCards from "../components/cards.js";
 import modal from "../components/modal.js";
 import "../pages/index.css";
 

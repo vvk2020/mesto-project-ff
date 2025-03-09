@@ -9,19 +9,19 @@ export default (function modal() {
     constructor(selectorPopup, selectorButtonOpen) {
       try {
         console.clear();
-        // Инициализация
+        // Инициализация ссылок на popup и кнопку его закрытия
         if (selectorPopup.trim()) {
           this.popup = document.querySelector(selectorPopup);
           if (this.popup)
             this.buttonClose = this.popup.querySelector(
               selectorPopup + " .popup__close"
             );
-          // console.log("buttonClose: ", this.buttonClose);
         }
-        if (selectorButtonOpen.trim())
-          this.buttonOpen = document.querySelector(selectorButtonOpen);
         // Назначение обработчика открытия окна редактирования профиля по кнопке ✏️
-        this.attachEvent("click", this.openPopup, this.buttonOpen);
+        if (selectorButtonOpen.trim()) {
+          this.buttonOpen = document.querySelector(selectorButtonOpen);
+          this.attachEvent("click", this.openPopup, this.buttonOpen);
+        }
       } catch (err) {
         this.error = err; // для последующей обработки ошибки
         console.log(err);
@@ -30,14 +30,14 @@ export default (function modal() {
 
     // Универсальная функция назначения обработчика событий
     attachEvent(event, handler, obj = this.popup) {
-      console.log("attach: ", obj, event, handler);
+      // console.log("attach: ", obj, event, handler);
       if (obj && event && handler)
         obj.addEventListener(event, handler.bind(this));
     }
 
     // Универсальная функция удаления обработчика событий
     detachEvent(event, handler, obj = this.popup) {
-      console.log("detach: ", obj, event, handler);
+      // console.log("detach: ", obj, event, handler);
       if (obj && event && handler)
         obj.removeEventListener(event, handler.bind(this));
     }
@@ -88,6 +88,26 @@ export default (function modal() {
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    function collectPopups(selectorPopup, selectorButtonOpen) {
+      // try {
+      //   // Инициализация
+      //   if (selectorPopup.trim()) {
+      //     popup = document.querySelectorAll(selectorPopup);
+      //     // if (this.popup)
+      //     //   this.buttonClose = this.popup.querySelector(
+      //     //     selectorPopup + " .popup__close"
+      //     //   );
+      //   }
+      //   if (selectorButtonOpen.trim())
+      //     this.buttonOpen = document.querySelector(selectorButtonOpen);
+      //   // Назначение обработчика открытия окна редактирования профиля по кнопке ✏️
+      //   this.attachEvent("click", this.openPopup, this.buttonOpen);
+      // } catch (err) {
+      //   this.error = err; // для последующей обработки ошибки
+      //   console.log(err);
+      // }
+    }
+
     // Массив popup-объектов
     const Popups = [
       new Popup(".popup_type_edit", ".profile__edit-button"),
@@ -95,5 +115,24 @@ export default (function modal() {
       // new Popup(".popup_type_image", ".card__image"),
     ];
 
+    function clickCard(evt) {
+      console.log(evt.target);
+    }
+
+    (() => {
+      console.log("ok777");
+      // Список карточек
+      const cardsList = document.querySelector(".places__list");
+      console.log(cardsList);
+
+      cardsList.addEventListener("click", clickCard);
+
+      // const cardsArray = Array.from(cards);
+      // cardsArray.forEach((card) => {
+      //   console.log(card);
+      // });
+    })();
+
+    // Popups
   });
 })();

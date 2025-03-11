@@ -1,9 +1,9 @@
 import initialCards from "../components/cards.js";
-import { createCard, deleteCard, likeCard } from "../components/card.js";
+import { createCard, likeCard } from "../components/card.js";
 import {
   ProfilePopup,
   CardViewPopup,
-  CardInsPopup,
+  CardAddPopup,
 } from "../components/modal.js";
 import "../pages/index.css";
 
@@ -41,23 +41,24 @@ const buttonAddCard = document.querySelector(".profile__add-button");
 //* Массив статически создаваемых popup-объектов
 const Popups = [
   new ProfilePopup(buttonEditProfile, profileFields), // редактирования профиля
-  new CardInsPopup(buttonAddCard), // создания новой карточки
+  new CardAddPopup(buttonAddCard), // создания новой карточки
 ];
 
 // Список карточек и назначение ему  обработчика для onclick
 const cardsList = document.querySelector(".places__list");
 cardsList.addEventListener("click", clickCard);
 
-// Динамическое назначение обработчиков закрытия выбранной карточке
+
 function clickCard(evt) {
-  // Создание popup c картинкой и описанием при click по карточке
+  // Динамическое назначение обработчиков событий выбранной карточке
   if (evt.target.classList.contains("card__image")) {
     const selectedCard = evt.target.closest(".places__item");
     if (selectedCard) {
+      // Создание popup c картинкой и описанием при click по карточке
       Popups.push(new CardViewPopup(selectedCard, true));
     }
   }
-  // Обработка like/dislike при click по кнопке 🩷 карточки
+  // Обработка like/dislike при click по кнопке 🩷 карточки (альтернативная)
   if (evt.target.classList.contains("card__like-button")) {
     likeCard(evt.target); // изменение стиля 🩷
   }

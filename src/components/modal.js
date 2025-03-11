@@ -2,11 +2,11 @@ import { createCard, deleteCard } from "../components/card.js";
 
 //! Абстрактный класс popup
 class Popup {
-  //* Статические константы класса
   static CONST = {
-    isOpenClass: "popup_is-opened", // css-класс открытого окна
-    closerClass: ".popup__close", // css-класс элемента (кнопки), закрывающего окно
-    contentWrapperClass: ".popup__content", // css-класс wrappera контента окна
+    //* CSS-классы
+    isOpenClass: "popup_is-opened", // открытого окна
+    closerClass: ".popup__close", // элемента (кнопки), закрывающего окно
+    contentWrapperClass: ".popup__content", // wrappera контента окна
   };
 
   constructor(popup, buttonOpen, openIt = false) /** 
@@ -41,11 +41,8 @@ class Popup {
     }
   }
 
-  //* submit-обработчик формы popup (переопределяется в наследниках)
-  // Не удалять! Иначе не корректно работает в наследниках
-  handleFormSubmit(evt) {
-    // console.log("Popup.handleFormSubmit()");
-  }
+  //* submit-обработчик формы popup (чистая виртуальная функция)
+  handleFormSubmit(evt) {}
 
   //* Универсальная функция назначения обработчика событий
   attachEvent(event, handler, obj = this.popup) {
@@ -73,15 +70,11 @@ class Popup {
     this.detachEvent("mousedown", this.handleClickOutside); // мышью вне границ окна
   }
 
-  //* Инициализация popup (определяется в наследниках)
-  initializePopup() {
-    // console.log("Popup.initializePopupForm()");
-  }
+  //* Инициализация popup (чистая виртуальная функция)
+  initializePopup() {}
 
-  //* Завершающие операции перед закрытием popup (определяется в наследниках)
-  finalizePopup() {
-    // console.log("Popup.finalizePopup()");
-  }
+  //* Завершающие операции перед закрытием popup (чистая виртуальная функция)
+  finalizePopup() {}
 
   //* Обработчик открытия модального окна по ✏️
   async openPopup() {
@@ -128,14 +121,12 @@ class Popup {
           const value = type === "checkbox" ? element.checked : element.value; // поддержка checkbox
           this.data.append(name, value);
         });
-      // console.log(Array.from(this.data.entries()));
     }
   }
 }
 
 //! Класс popup редактирования профиля
 class ProfilePopup extends Popup {
-  //* Статические константы класса
   static CONST = {
     //* CSS-классы
     popupClass: ".popup_type_edit", // popup
@@ -156,16 +147,16 @@ class ProfilePopup extends Popup {
       //* Поля формы popup
       this.profileName = popup.querySelector(
         ProfilePopup.CONST.profileNameClass
-      ); // Имя профиля
+      ); // имя профиля
       this.profileDescription = popup.querySelector(
         ProfilePopup.CONST.profileDescriptionClass
-      ); // Описание профиля
+      ); // описание профиля
       // Элементы страницы, отображающие данные профиля
       if (OutputFields) this.OutputFields = OutputFields;
     }
   }
 
-  //* Инициализация popup (определяется в наследниках)
+  //* Инициализация popup (переопределяется в наследниках)
   initializePopup() {
     super.initializePopup();
     // Передача данных в поля формы popup
@@ -196,7 +187,6 @@ class ProfilePopup extends Popup {
 
 //! Класс popup отображения выбранной карточки
 class CardViewPopup extends Popup {
-  // Статические константы класса
   static CONST = {
     // * CSS-классы
     // ... popup и его элементов:
@@ -249,8 +239,7 @@ class CardViewPopup extends Popup {
 }
 
 //! Класс popup создания карточки
-class CardInsPopup extends Popup {
-  //* Статические константы класса
+class CardAddPopup extends Popup {
   static CONST = {
     //* CSS-классы
     popupClass: ".popup_type_new-card", // popup
@@ -260,24 +249,21 @@ class CardInsPopup extends Popup {
     urlClass: ".popup__input_type_url", // url картинки
   };
 
-  constructor(
-    buttonOpen,
-    openIt = false /**  
+  constructor(buttonOpen, openIt = false) {
+    /**  
       @param buttonOpen - кнопка открытия модального окна
-      @param OutputFields -  объект ссылок на элементы профия
       @param openIt - флаг необходимости открытия модального окна: true - открыть, false - создать 
     */
-  ) {
-    const popup = document.querySelector(CardInsPopup.CONST.popupClass);
+    const popup = document.querySelector(CardAddPopup.CONST.popupClass);
     if (popup) {
       super(popup, buttonOpen, openIt);
       //* Поля формы popup
-      this.cardName = popup.querySelector(CardInsPopup.CONST.cardNameClass); // название
-      this.url = popup.querySelector(CardInsPopup.CONST.urlClass); // url картинки
+      this.cardName = popup.querySelector(CardAddPopup.CONST.cardNameClass); // название
+      this.url = popup.querySelector(CardAddPopup.CONST.urlClass); // url картинки
     }
     //* Контейнер хранения карточек
     const cardsContainer = document.querySelector(
-      CardInsPopup.CONST.cardsContainerClass
+      CardAddPopup.CONST.cardsContainerClass
     );
     if (cardsContainer) this.cardsContainer = cardsContainer;
   }
@@ -311,4 +297,4 @@ class CardInsPopup extends Popup {
   }
 }
 
-export { Popup, ProfilePopup, CardViewPopup, CardInsPopup };
+export { Popup, ProfilePopup, CardViewPopup, CardAddPopup };

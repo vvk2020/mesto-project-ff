@@ -1,6 +1,6 @@
 import { cardTemplate } from "../scripts/index.js";
 
-// @todo: Функция создания карточки
+//* Функция создания карточки
 const createCard = (card, handler = deleteCard) => {
   // Клонирование карточки по шаблону
   const newCard = cardTemplate
@@ -25,12 +25,12 @@ const createCard = (card, handler = deleteCard) => {
   return newCard;
 };
 
-// Функция изменения стиля like-кнопки (🩷) карточки
+//* Функция изменения стиля 🩷 like-кнопки карточки
 function likeCard(likeButton) {
   if (likeButton) likeButton.classList.toggle("card__like-button_is-active");
 }
 
-// @todo: Функция удаления карточки
+//* Функция удаления карточки
 const deleteCard = (card) => {
   if (card) card.remove();
 };

@@ -1,10 +1,6 @@
-/* Popup - абстрактный класс popup:
-  popup - модальное окно  
-  buttonOpen - кнопка открытия модального окна
-  buttonClose  - кнопка закрытия модального окна
-  openIt - флаг необходимости открытия модального окна: true - открыть, false - создать
-*/
+import { createCard, deleteCard } from "../components/card.js";
 
+//! Абстрактный класс popup
 class Popup {
   //* Статические константы класса
   static CONST = {
@@ -13,7 +9,12 @@ class Popup {
     contentWrapperClass: ".popup__content", // css-класс wrappera контента окна
   };
 
-  constructor(popup, buttonOpen, openIt = false) {
+  constructor(popup, buttonOpen, openIt = false) /** 
+    @param popup - модальное окно  
+    @param buttonOpen - кнопка открытия окна
+    @param buttonClose  - кнопка закрытия окна
+    @param openIt - флаг открытия окна сразу после создания
+*/ {
     if (popup) {
       this.popup = popup; // модальное онко
       // Определение кнопки закрытия модального окна
@@ -116,8 +117,6 @@ class Popup {
   }
 
   //* Подготовка данных формы popup (в т.ч. перед отправкой на сервер)
-  // https://doka.guide/js/deal-with-forms/
-  // https://learn.javascript.ru/formdata => formData.get(name) – получает значение поля с именем name,
   serializeForm() {
     if (this.form) {
       const { elements } = this.form;
@@ -186,11 +185,9 @@ class ProfilePopup extends Popup {
   //* Завершающие операции перед закрытием popup
   handleFormSubmit(evt) {
     super.handleFormSubmit(evt);
-    console.log("ProfilePopup.handleFormSubmit().this", this);
     this.serializeForm(); // подготовка данных для отправки на сервер
     // Передача данных из popup профиля на страницу
     if (this.OutputFields && this.data) {
-      console.log("ProfilePopup.finalizePopup()+++");
       this.OutputFields.name.textContent = this.data.get("name"); // имя
       this.OutputFields.description.textContent = this.data.get("description"); // описание
     }
@@ -198,7 +195,7 @@ class ProfilePopup extends Popup {
 }
 
 //! Класс popup отображения выбранной карточки
-class CardPopup extends Popup {
+class CardViewPopup extends Popup {
   // Статические константы класса
   static CONST = {
     // * CSS-классы
@@ -216,24 +213,24 @@ class CardPopup extends Popup {
       @param Card - ссылка на выбранную карточку
       @param openIt - флаг необходимости открытия модального окна: true - открыть, false - создать
     */
-    const popup = document.querySelector(CardPopup.CONST.popupClass);
+    const popup = document.querySelector(CardViewPopup.CONST.popupClass);
     if (popup) {
       super(popup, null, openIt);
       //* Элементы popup
       this.imagePopup = this.popup.querySelector(
-        CardPopup.CONST.popupImageClass
+        CardViewPopup.CONST.popupImageClass
       ); // картинка
       this.captionPopup = this.popup.querySelector(
-        CardPopup.CONST.popupCaptionClass
+        CardViewPopup.CONST.popupCaptionClass
       ); // описание
       //* Элементы карточки
       if (Card) {
         this.Card = Card;
         this.imageCard = this.Card.querySelector(
-          CardPopup.CONST.imageCardClass
+          CardViewPopup.CONST.imageCardClass
         ); // картинка
         this.titleCard = this.Card.querySelector(
-          CardPopup.CONST.titleCardClass
+          CardViewPopup.CONST.titleCardClass
         ); // описание
       }
     }
@@ -251,4 +248,67 @@ class CardPopup extends Popup {
   }
 }
 
-export { Popup, ProfilePopup, CardPopup };
+//! Класс popup создания карточки
+class CardInsPopup extends Popup {
+  //* Статические константы класса
+  static CONST = {
+    //* CSS-классы
+    popupClass: ".popup_type_new-card", // popup
+    cardsContainerClass: ".places__list", // контейнер хранения карточек
+    //... полей формы popup
+    cardNameClass: ".popup__input_type_card-name", // иназвание
+    urlClass: ".popup__input_type_url", // url картинки
+  };
+
+  constructor(
+    buttonOpen,
+    openIt = false /**  
+      @param buttonOpen - кнопка открытия модального окна
+      @param OutputFields -  объект ссылок на элементы профия
+      @param openIt - флаг необходимости открытия модального окна: true - открыть, false - создать 
+    */
+  ) {
+    const popup = document.querySelector(CardInsPopup.CONST.popupClass);
+    if (popup) {
+      super(popup, buttonOpen, openIt);
+      //* Поля формы popup
+      this.cardName = popup.querySelector(CardInsPopup.CONST.cardNameClass); // название
+      this.url = popup.querySelector(CardInsPopup.CONST.urlClass); // url картинки
+    }
+    //* Контейнер хранения карточек
+    const cardsContainer = document.querySelector(
+      CardInsPopup.CONST.cardsContainerClass
+    );
+    if (cardsContainer) this.cardsContainer = cardsContainer;
+  }
+
+  //* Инициализация popup
+  initializePopup() {
+    super.initializePopup();
+    this.form.reset(); // очистка полей формы popup
+  }
+
+  //* Добавление созданной карточки в начало списка карточек
+  addCard() {
+    if (
+      this.cardsContainer &&
+      this.data.get("place-name") &&
+      this.data.get("link")
+    ) {
+      this.Card = createCard({
+        name: this.data.get("place-name"),
+        link: this.data.get("link"),
+      });
+      if (this.Card) this.cardsContainer.prepend(this.Card);
+    }
+  }
+
+  //* Завершающие операции перед закрытием popup
+  handleFormSubmit(evt) {
+    super.handleFormSubmit(evt);
+    this.serializeForm(); // подготовка данных для отправки на сервер
+    this.addCard(); // Добавление карточки на страницу
+  }
+}
+
+export { Popup, ProfilePopup, CardViewPopup, CardInsPopup };

@@ -10,21 +10,29 @@ const createCard = (card, handler = deleteCard) => {
   if (newCard) {
     // Данные карточки
     const cardImage = newCard.querySelector(".card__image");
-    cardImage.src = card.link;
-    cardImage.alt = card.name;
+    if (cardImage) {
+      cardImage.src = card.link;
+      cardImage.alt = card.name;
+    }
     newCard.querySelector(".card__title").textContent = card.name;
     // Обработчик удаления карточки
     const deleteButton = newCard.querySelector(".card__delete-button");
-    deleteButton.addEventListener("click", () => {
-      handler(newCard);
-    });
+    if (deleteButton)
+      deleteButton.addEventListener("click", () => {
+        handler(newCard);
+      });
   }
   return newCard;
 };
+
+// Функция изменения стиля like-кнопки (🩷) карточки
+function likeCard(likeButton) {
+  if (likeButton) likeButton.classList.toggle("card__like-button_is-active");
+}
 
 // @todo: Функция удаления карточки
 const deleteCard = (card) => {
   if (card) card.remove();
 };
 
-export { createCard, deleteCard };
+export { createCard, deleteCard, likeCard };

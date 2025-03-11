@@ -34,6 +34,7 @@ class Popup {
           evt.preventDefault(); // блокировка стандартной обработки submit
           this.handleFormSubmit(evt); // подготовка данных формы popup для отправки
           this.popup.classList.remove(Popup.CONST.isOpenClass); // скрытие popup
+          // form.submit(); // Отправка данных на сервер
         });
       }
     }
@@ -61,14 +62,14 @@ class Popup {
   attachAllEvents() {
     this.attachEvent("click", this.closePopup, this.buttonClose); // по ❌
     this.attachEvent("keydown", this.handleEsc, document); // по Esc
-    this.attachEvent("click", this.handleClickOutside); // click вне границ окна
+    this.attachEvent("mousedown", this.handleClickOutside); // мышью вне границ окна (click некорректно при выделении текста в поле формы)
   }
 
   //* Удаление обработчиков событий модального окна перед закрытием
   detachAllEvents() {
     this.detachEvent("click", this.closePopup, this.buttonClose); // по ❌
     this.detachEvent("keydown", this.handleEsc, document); // по Esc
-    this.detachEvent("click", this.handleClickOutside); // click вне границ окна
+    this.detachEvent("mousedown", this.handleClickOutside); // мышью вне границ окна
   }
 
   //* Инициализация popup (определяется в наследниках)
@@ -78,14 +79,15 @@ class Popup {
 
   //* Завершающие операции перед закрытием popup (определяется в наследниках)
   finalizePopup() {
-    console.log("Popup.finalizePopup()");
+    // console.log("Popup.finalizePopup()");
   }
 
   //* Обработчик открытия модального окна по ✏️
   async openPopup() {
     this.popup.classList.add(Popup.CONST.isOpenClass);
-    /* Если popup неоходимо открыть сразу после конструктора (this.openIt===true), то используем Promise,
-    если нет - вызываем как обычно */
+    this.attachAllEvents(); // назначение обработчиков событий popup
+    /* Если popup неоходимо открыть сразу после конструктора (this.openIt===true), 
+    то используем Promise, в противном случае - вызываем как обычно */
     if (this.openIt) {
       await new Promise((resolve) => setTimeout(resolve)); // ожидание завершения работы constructor()
     } else this.initializePopup();
@@ -103,9 +105,7 @@ class Popup {
 
   //* Обработчик закрытия модального окна по Esc
   handleEsc(evt) {
-    if (evt.key === "Escape") {
-      this.closePopup();
-    }
+    if (evt.key === "Escape") this.closePopup();
   }
 
   //* Обработчик закрытия модального окна по click вне его границ
@@ -154,7 +154,6 @@ class ProfilePopup extends Popup {
     const popup = document.querySelector(ProfilePopup.CONST.popupClass);
     if (popup) {
       super(popup, buttonOpen, openIt);
-
       //* Поля формы popup
       this.profileName = popup.querySelector(
         ProfilePopup.CONST.profileNameClass
@@ -169,6 +168,7 @@ class ProfilePopup extends Popup {
 
   //* Инициализация popup (определяется в наследниках)
   initializePopup() {
+    super.initializePopup();
     // Передача данных в поля формы popup
     if (this.OutputFields) {
       // Имя профиля

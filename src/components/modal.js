@@ -9,40 +9,35 @@ class Popup {
     contentWrapperClass: ".popup__content", // wrappera контента окна
   };
 
-  constructor(popup, buttonOpen, openIt = false) /** 
-    @param popup - модальное окно  
-    @param buttonOpen - кнопка открытия окна
-    @param buttonClose  - кнопка закрытия окна
-    @param openIt - флаг открытия окна сразу после создания
-*/ {
+  constructor(popup) {
     if (popup) {
       this.popup = popup; // модальное онко
-      // Определение кнопки закрытия модального окна
-      this.openIt = openIt;
+      // Кнопка закрытия окна
       this.buttonClose = this.popup.querySelector(Popup.CONST.closerClass);
-      // Назначение обработчика открытия окна редактирования профиля по кнопке ✏️ (если задан)
-      if (buttonOpen) {
-        this.buttonOpen = buttonOpen;
-        this.attachEvent("click", this.openPopup, this.buttonOpen);
-      }
-      /* Если установлен флаг openIt, то popup открывается сразу после создания. Promise необходим 
-      для выполнения initializePopup() строго после завершения работы данного конструктора */
-      if (openIt) this.openPopup().then(this.initializePopup.bind(this));
-      // Форма на popup (если есть) и ее submit-обработчик
+      // Форма popup (если есть) и ее submit-обработчик
       this.form = this.popup.querySelector("form.popup__form");
       if (this.form) {
         this.form.addEventListener("submit", (evt) => {
           evt.preventDefault(); // блокировка стандартной обработки submit
-          this.handleFormSubmit(evt); // подготовка данных формы popup для отправки
+          this.finalize(); // завершающие операции перед закрытием
           this.popup.classList.remove(Popup.CONST.isOpenClass); // скрытие popup
+          this.serializeForm(); // подготовка данных для отправки на сервер
           // form.submit(); // Отправка данных на сервер
         });
       }
     }
   }
 
-  //* submit-обработчик формы popup (чистая виртуальная функция)
-  handleFormSubmit(evt) {}
+  //* Завершающие операции перед закрытием popup
+  finalize() {
+    // Передача данных из полей формы на страницу
+    if (this.outputSources && this.formInputs) {
+      for (const key in this.formInputs) {
+        if (this.formInputs[key])
+          this.outputSources[key].textContent = this.formInputs[key].value;
+      }
+    }
+  }
 
   //* Универсальная функция назначения обработчика событий
   attachEvent(event, handler, obj = this.popup) {
@@ -58,55 +53,61 @@ class Popup {
 
   //* Назначение обработчиков событий закрытия модального окна
   attachAllEvents() {
-    this.attachEvent("click", this.closePopup, this.buttonClose); // по ❌
+    this.attachEvent("click", this.closeModal, this.buttonClose); // по ❌
     this.attachEvent("keydown", this.handleEsc, document); // по Esc
-    this.attachEvent("mousedown", this.handleClickOutside); // мышью вне границ окна (click некорректно при выделении текста в поле формы)
+    this.attachEvent("mousedown", this.handleClickOutside); // мышью вне окна
   }
 
   //* Удаление обработчиков событий модального окна перед закрытием
   detachAllEvents() {
-    this.detachEvent("click", this.closePopup, this.buttonClose); // по ❌
+    this.detachEvent("click", this.closeModal, this.buttonClose); // по ❌
     this.detachEvent("keydown", this.handleEsc, document); // по Esc
-    this.detachEvent("mousedown", this.handleClickOutside); // мышью вне границ окна
+    this.detachEvent("mousedown", this.handleClickOutside); // мышью вне окна
   }
 
-  //* Инициализация popup (чистая виртуальная функция)
-  initializePopup() {}
-
-  //* Завершающие операции перед закрытием popup (чистая виртуальная функция)
-  finalizePopup() {}
+  //* Инициализация popup
+  initialize() {
+    if (this.form) {
+      this.form.reset(); // сброс формы
+      // Передача данных из dataSource в поля формы popup
+      if (this.inputSources) {
+        for (const key in this.inputSources) {
+          if (this.formInputs[key] && this.inputSources[key]) {
+            this.formInputs[key].value = this.inputSources[key].textContent;
+          }
+        }
+      }
+    }
+  }
 
   //* Обработчик открытия модального окна по ✏️
-  async openPopup() {
+  openModal(inputSources, outputSources) {
+    if (inputSources) this.inputSources = inputSources; // источники данных для формы
+    if (outputSources) this.outputSources = outputSources; // источники, куда будут выведены данные формы
     this.popup.classList.add(Popup.CONST.isOpenClass);
     this.attachAllEvents(); // назначение обработчиков событий popup
-    /* Если popup неоходимо открыть сразу после конструктора (this.openIt===true), 
-    то используем Promise, в противном случае - вызываем как обычно */
-    if (this.openIt) {
-      await new Promise((resolve) => setTimeout(resolve)); // ожидание завершения работы constructor()
-    } else this.initializePopup();
+    this.initialize();
   }
 
   //* Обработчик закрытия модального окна по ❌
-  closePopup() {
+  closeModal() {
     /* Удаление обработчиков событий окна с блокировкой повторного их удаления */
     if (this.popup.classList.contains(Popup.CONST.isOpenClass))
       this.detachAllEvents();
-    // Удаление флага открытия окна (налияия обработчиков событий)
+    // Удаление класса, отображающего окно
     this.popup.classList.remove(Popup.CONST.isOpenClass);
-    this.finalizePopup();
   }
 
   //* Обработчик закрытия модального окна по Esc
   handleEsc(evt) {
-    if (evt.key === "Escape") this.closePopup();
+    if (evt.key === "Escape") this.closeModal();
   }
 
   //* Обработчик закрытия модального окна по click вне его границ
   handleClickOutside(evt) {
     const isInsideClick = !!evt.target.closest(Popup.CONST.contentWrapperClass);
-    // Закрываем, если click по элементу, не имеющему родителя с .popup__content
-    if (!isInsideClick) this.closePopup();
+    // Закрываем, если click по элементу, не имеющему предка с .popup__content
+    if (!isInsideClick) this.closeModal();
   }
 
   //* Подготовка данных формы popup (в т.ч. перед отправкой на сервер)
@@ -135,52 +136,17 @@ class ProfilePopup extends Popup {
     profileDescriptionClass: ".popup__input_type_description", // описания профиля
   };
 
-  constructor(buttonOpen, OutputFields, openIt = false) {
-    /**  
-      @param buttonOpen - кнопка открытия модального окна
-      @param OutputFields -  объект ссылок на элементы профия
-      @param openIt - флаг необходимости открытия модального окна: true - открыть, false - создать 
-    */
+  constructor() {
     const popup = document.querySelector(ProfilePopup.CONST.popupClass);
     if (popup) {
-      super(popup, buttonOpen, openIt);
+      super(popup);
       //* Поля формы popup
-      this.profileName = popup.querySelector(
-        ProfilePopup.CONST.profileNameClass
-      ); // имя профиля
-      this.profileDescription = popup.querySelector(
-        ProfilePopup.CONST.profileDescriptionClass
-      ); // описание профиля
-      // Элементы страницы, отображающие данные профиля
-      if (OutputFields) this.OutputFields = OutputFields;
-    }
-  }
-
-  //* Инициализация popup (переопределяется в наследниках)
-  initializePopup() {
-    super.initializePopup();
-    // Передача данных в поля формы popup
-    if (this.OutputFields) {
-      // Имя профиля
-      if (this.OutputFields.name.textContent) {
-        this.profileName.value = this.OutputFields.name.textContent;
-      }
-      // Описание профиля
-      if (this.OutputFields.description.textContent) {
-        this.profileDescription.value =
-          this.OutputFields.description.textContent;
-      }
-    }
-  }
-
-  //* Завершающие операции перед закрытием popup
-  handleFormSubmit(evt) {
-    super.handleFormSubmit(evt);
-    this.serializeForm(); // подготовка данных для отправки на сервер
-    // Передача данных из popup профиля на страницу
-    if (this.OutputFields && this.data) {
-      this.OutputFields.name.textContent = this.data.get("name"); // имя
-      this.OutputFields.description.textContent = this.data.get("description"); // описание
+      this.formInputs = {
+        name: popup.querySelector(ProfilePopup.CONST.profileNameClass), // имя профиля
+        description: popup.querySelector(
+          ProfilePopup.CONST.profileDescriptionClass
+        ), // описание профиля
+      };
     }
   }
 }
@@ -198,41 +164,42 @@ class CardViewPopup extends Popup {
     titleCardClass: ".card__title", // описания
   };
 
-  constructor(Card, openIt = false) {
-    /**  
-      @param Card - ссылка на выбранную карточку
-      @param openIt - флаг необходимости открытия модального окна: true - открыть, false - создать
-    */
+  constructor() {
     const popup = document.querySelector(CardViewPopup.CONST.popupClass);
     if (popup) {
-      super(popup, null, openIt);
-      //* Элементы popup
-      this.imagePopup = this.popup.querySelector(
-        CardViewPopup.CONST.popupImageClass
-      ); // картинка
-      this.captionPopup = this.popup.querySelector(
-        CardViewPopup.CONST.popupCaptionClass
-      ); // описание
-      //* Элементы карточки
-      if (Card) {
-        this.Card = Card;
-        this.imageCard = this.Card.querySelector(
-          CardViewPopup.CONST.imageCardClass
-        ); // картинка
-        this.titleCard = this.Card.querySelector(
-          CardViewPopup.CONST.titleCardClass
-        ); // описание
-      }
+      super(popup);
+      // Определение popup-элементов
+      this.popupElements = {
+        image: this.popup.querySelector(CardViewPopup.CONST.popupImageClass), // картинка
+        title: this.popup.querySelector(CardViewPopup.CONST.popupCaptionClass), // описание
+      };
     }
   }
 
-  //* Передача данных элементам popup из карточки
-  initializePopup() {
-    if (this.Card) {
-      if (this.imageCard && this.imagePopup) {
-        this.imagePopup.src = this.imageCard.src;
-        this.imagePopup.alt = this.imageCard.textContent;
-        this.captionPopup.textContent = this.titleCard.textContent;
+  openModal(Card) {
+    // Получение данных из карточки
+    if (Card) {
+      this.card = {
+        image: Card.querySelector(CardViewPopup.CONST.imageCardClass), // картинка
+        title: Card.querySelector(CardViewPopup.CONST.titleCardClass), // описание
+      };
+    }
+    super.openModal();
+  }
+
+  initialize() {
+    super.initialize();
+    // Передача данных карточки в popup
+    if (this.card) {
+      if (
+        this.card.image &&
+        this.card.title &&
+        this.popupElements.image &&
+        this.popupElements.title
+      ) {
+        this.popupElements.image.src = this.card.image.src;
+        this.popupElements.image.alt = this.card.title.textContent;
+        this.popupElements.title.textContent = this.card.title.textContent;
       }
     }
   }
@@ -249,17 +216,15 @@ class CardAddPopup extends Popup {
     urlClass: ".popup__input_type_url", // url картинки
   };
 
-  constructor(buttonOpen, openIt = false) {
-    /**  
-      @param buttonOpen - кнопка открытия модального окна
-      @param openIt - флаг необходимости открытия модального окна: true - открыть, false - создать 
-    */
+  constructor() {
     const popup = document.querySelector(CardAddPopup.CONST.popupClass);
     if (popup) {
-      super(popup, buttonOpen, openIt);
+      super(popup);
       //* Поля формы popup
-      this.cardName = popup.querySelector(CardAddPopup.CONST.cardNameClass); // название
-      this.url = popup.querySelector(CardAddPopup.CONST.urlClass); // url картинки
+      this.formInputs = {
+        cardName: popup.querySelector(CardAddPopup.CONST.cardNameClass), // название
+        url: popup.querySelector(CardAddPopup.CONST.urlClass), // url
+      };
     }
     //* Контейнер хранения карточек
     const cardsContainer = document.querySelector(
@@ -268,33 +233,26 @@ class CardAddPopup extends Popup {
     if (cardsContainer) this.cardsContainer = cardsContainer;
   }
 
-  //* Инициализация popup
-  initializePopup() {
-    super.initializePopup();
-    this.form.reset(); // очистка полей формы popup
-  }
-
   //* Добавление созданной карточки в начало списка карточек
-  addCard() {
+  addCardToList() {
     if (
       this.cardsContainer &&
-      this.data.get("place-name") &&
-      this.data.get("link")
+      this.formInputs.cardName.value &&
+      this.formInputs.url.value
     ) {
       this.Card = createCard({
-        name: this.data.get("place-name"),
-        link: this.data.get("link"),
+        name: this.formInputs.cardName.value,
+        link: this.formInputs.url.value,
       });
       if (this.Card) this.cardsContainer.prepend(this.Card);
     }
   }
 
   //* Завершающие операции перед закрытием popup
-  handleFormSubmit(evt) {
-    super.handleFormSubmit(evt);
-    this.serializeForm(); // подготовка данных для отправки на сервер
-    this.addCard(); // Добавление карточки на страницу
+  finalize() {
+    super.finalize();
+    this.addCardToList(); // Добавление карточки на страницу
   }
 }
 
-export { Popup, ProfilePopup, CardViewPopup, CardAddPopup };
+export { ProfilePopup, CardViewPopup, CardAddPopup };

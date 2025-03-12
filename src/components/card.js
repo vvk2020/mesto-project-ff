@@ -1,4 +1,5 @@
-import { cardTemplate } from "../scripts/index.js";
+//* Темплейт карточки
+const cardTemplate = document.querySelector("#card-template").content;
 
 //* Функция создания карточки
 const createCard = (card, handler = deleteCard) => {

@@ -2,7 +2,7 @@
 const cardTemplate = document.querySelector("#card-template").content;
 
 //* Функция создания карточки
-const createCard = (card, onShow, onDelete = deleteCard) => {
+const createCard = (card, onShow, onLike = likeCard, onDelete = deleteCard) => {
   // Клонирование карточки по шаблону
   const newCard = cardTemplate
     .querySelector(".places__item.card")
@@ -35,20 +35,27 @@ const createCard = (card, onShow, onDelete = deleteCard) => {
         { once: true }
       );
 
-    //
-    // const likeButton
+    // Обработка like/dislike карточки по кнопке 🤍
+    const likeButton = newCard.querySelector(".card__like-button");
+    if (likeButton)
+      likeButton.addEventListener("click", () => {
+        onLike(likeButton);
+      });
   }
   return newCard;
 };
 
-//* Функция изменения стиля 🩷 like-кнопки карточки
+//* Обработчик like/dislike карточки (🤍<=>🩷/)
 function likeCard(likeButton) {
   if (likeButton) likeButton.classList.toggle("card__like-button_is-active");
 }
 
 //* Функция удаления карточки
 const deleteCard = (card) => {
-  if (card) card.remove();
+  if (card) {
+    card.remove(); // удаление карточки
+    card = null; //  пометка для GC
+  }
 };
 
 export { createCard, deleteCard, likeCard };

@@ -25,10 +25,10 @@ const captionCardViewPopup = cardViewPopup.querySelector(".popup__caption");
 //* Inputs формы popup редактирования профиля
 const nameProfilePopupInput = profilePopup.querySelector(
   "input.popup__input_type_name"
-); // поле ввода имени профиля
+); // input имени профиля
 const descrProfilePopupInput = profilePopup.querySelector(
   "input.popup__input_type_description"
-); // поле ввода описания профиля
+); // input описания профиля
 
 //! Обработчики событий
 

@@ -1,7 +1,7 @@
 //! Константы модуля
 const CONST = {
   // CSS-классы
-  isOpenClass: "popup_is-opened", // открытого окна
+  isOpenClass: "popup_is-opened", // открытого popup
   closerClass: ".popup__close", // элемента (кнопки), закрывающего окно
   contentWrapperClass: ".popup__content", // wrappera контента окна
 };

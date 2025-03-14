@@ -53,7 +53,7 @@ function likeCard(likeButton) {
 //* Функция удаления карточки
 const deleteCard = (card) => {
   if (card) {
-    card.remove(); // удаление карточки
+    card.remove(); // удаление
     card = null; //  пометка для GC
   }
 };

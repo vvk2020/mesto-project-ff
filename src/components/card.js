@@ -2,7 +2,10 @@
 const cardTemplate = document.querySelector("#card-template").content;
 
 //* Функция создания карточки
-const createCard = (card, onShow, onLike = likeCard, onDelete = deleteCard) => {
+const createCard = (
+  card,
+  { onShow, onLike = likeCard, onDelete = deleteCard } = {}
+) => {
   // Клонирование карточки по шаблону
   const newCard = cardTemplate
     .querySelector(".places__item.card")

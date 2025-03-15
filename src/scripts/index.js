@@ -55,18 +55,31 @@ function handleShowCard(card) {
   if (btnAddCard) {
     btnAddCard.addEventListener("click", () => {
       if (newCardPopup) {
-        setupNewCardPopup(); // настройка popup (сброс формы)
+        resetNewCardPopupForm(); // настройка popup (сброс формы)
         openModal(newCardPopup); // открытие popup
       }
     });
   }
 
+  //*... кнопке ❌ popup просмотра карточки
+  const buttonClose = cardViewPopup.querySelector("button.popup__close");
+  if (buttonClose)
+    buttonClose.addEventListener("click", () => {
+      closeModal(cardViewPopup);
+    });
+
+  //* ... click вне границ popup просмотра карточки
+  cardViewPopup.addEventListener("mousedown", (evt) => {
+    const isInsideClick = !!evt.target.closest(".popup__content");
+    if (!isInsideClick) closeModal(cardViewPopup);
+  });
+
   //* ... submit-обработчика формам popup
-  handleFormSubmit("edit-profile", handleEditProfileSubmit);
-  handleFormSubmit("new-place", handleNewCardSubmit);
+  setHandlerFormSubmit("edit-profile", handleEditProfileSubmit);
+  setHandlerFormSubmit("new-place", handleNewCardSubmit);
 })();
 
-function handleFormSubmit(formName, handler) {
+function setHandlerFormSubmit(formName, handler) {
   if (document.forms[formName]) {
     document.forms[formName].addEventListener("submit", handler);
   }
@@ -90,7 +103,7 @@ function handleNewCardSubmit(evt) {
     // Создание карточки
     const newCard = createCard(
       { name: data.get("place-name"), link: data.get("link") },
-      handleShowCard
+      { onShow: handleShowCard }
     );
     // Добавление созданной карточки в конец списка карточек
     if (newCard && cardsContainer) cardsContainer.prepend(newCard);
@@ -123,8 +136,8 @@ function setupEditProfilePopup() {
     descrProfilePopupInput.value = descrProfile.textContent; // описание профиля
 }
 
-//* Преднастройка popup создания карточки
-function setupNewCardPopup() {
+//* Сброс формы popup создания карточки
+function resetNewCardPopupForm() {
   document.forms["new-place"].reset(); // сброс формы (очистка полей)
 }
 
@@ -136,8 +149,7 @@ function serializeForm(form) {
     Array.from(elements)
       .filter((item) => !!item.name)
       .forEach((element) => {
-        const { name, type } = element;
-        const value = type === "checkbox" ? element.checked : element.value; // поддержка checkbox
+        const { name, value } = element;
         data.append(name, value);
       });
     return data;
@@ -145,11 +157,11 @@ function serializeForm(form) {
 }
 
 //! Вывод лакльно сохраненных карточек на страницу из initialCards[]
-const appendCards = (cardList, ...cards) => {
+const appendCards = (cardList, cards) => {
   cards.forEach((card) => {
-    const newCard = createCard(card, handleShowCard);
+    const newCard = createCard(card, { onShow: handleShowCard });
     if (newCard) cardList.append(newCard);
   });
 };
 
-appendCards(cardsContainer, ...initialCards);
+appendCards(cardsContainer, initialCards);

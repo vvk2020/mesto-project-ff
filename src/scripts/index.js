@@ -1,6 +1,6 @@
 import initialCards from "../components/cards.js";
 import { createCard } from "../components/card.js";
-import { openModal, closeModal } from "../components/modal.js";
+import { openModal, closeModal, initializeModal } from "../components/modal.js";
 import "../pages/index.css";
 
 //!  DOM узлы
@@ -38,7 +38,7 @@ function handleShowCard(card) {
   if (cardViewPopup) openModal(cardViewPopup); // открытие popup
 }
 
-//! Назначение обработчиков событий
+//! Назначение обработчиков событий ...
 
 (() => {
   //* ... кнопки открытия popup редактирования профиля
@@ -61,17 +61,10 @@ function handleShowCard(card) {
     });
   }
 
-  //*... кнопке ❌ popup просмотра карточки
-  const buttonClose = cardViewPopup.querySelector("button.popup__close");
-  if (buttonClose)
-    buttonClose.addEventListener("click", () => {
-      closeModal(cardViewPopup);
-    });
-
-  //* ... click вне границ popup просмотра карточки
-  cardViewPopup.addEventListener("mousedown", (evt) => {
-    const isInsideClick = !!evt.target.closest(".popup__content");
-    if (!isInsideClick) closeModal(cardViewPopup);
+  //* ... закрытия popup и его преднастройка
+  const popups = document.querySelectorAll(".popup");
+  popups.forEach((popup) => {
+    initializeModal(popup);
   });
 
   //* ... submit-обработчика формам popup

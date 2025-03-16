@@ -10,23 +10,61 @@ const CSS_CLASSES = {
 function openModal(popup) {
   if (popup && popup.classList.contains("popup")) {
     // Назначение обработчика закрытия popup по кнопке Esc
-    document.addEventListener(
-      "keydown",
-      (evt) => {
-        if (evt.key === "Escape") closeModal(popup);
-      },
-      { once: true }
-    );
-
+    document.addEventListener("keydown", handleEscWrapper);
     popup.classList.add(CSS_CLASSES.isOpen); // отображение popup
+  }
+}
+
+//! Wrapper обработчика события закрытия окна по Esc
+/*  
+  ОТКРЫТОЕ модальное окно может быть ТОЛЬКО ОДНО. Если необходимо 
+  открыть новое модальное окно, текущее модальное окно необходимо 
+  закрыть.
+*/
+function handleEscWrapper(evt) {
+  if (evt.key === "Escape") {
+    const popups = document.querySelectorAll(".popup");
+    if (popups) {
+      //* Поиск первого открытого popup
+      const openPopup = Array.from(popups).find((popup) => {
+        if (popup && popup.classList.contains("popup_is-opened")) return popup;
+      });
+      //* Закрытие первого найденного открытого popup
+      closeModal(openPopup);
+    }
   }
 }
 
 //! Закрытие popup
 function closeModal(popup) {
   if (popup && popup.classList.contains("popup")) {
-    popup.classList.remove(CSS_CLASSES.isOpen); // скрытие popup
+    // Удаление listner, закрывающего popup по Esc
+    document.removeEventListener("keydown", handleEscWrapper);
+    // Cкрытие popup
+    popup.classList.remove(CSS_CLASSES.isOpen);
   }
 }
 
-export { openModal, closeModal };
+//! Инициализация модального окна
+const initializeModal = (popup) => {
+  if (popup && popup.classList.contains("popup")) {
+    // Добавление модификатора popup для анимации при его открытии/закрытии
+    if (!popup.classList.contains("popup_is-animated"))
+      popup.classList.add("popup_is-animated");
+    
+    //* Назначение обработчиков закрытия popup по...
+    //... кнопке ❌ popup просмотра карточки
+    const btnClose = popup.querySelector("button.popup__close");
+    if (btnClose)
+      btnClose.addEventListener("click", () => {
+        closeModal(popup);
+      });
+    //... click вне границ popup просмотра карточки
+    popup.addEventListener("mousedown", (evt) => {
+      const isInsideClick = !!evt.target.closest(".popup__content");
+      if (!isInsideClick) closeModal(popup);
+    });
+  }
+};
+
+export { openModal, closeModal, initializeModal };

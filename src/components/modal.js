@@ -48,10 +48,10 @@ function closeModal(popup) {
 //! Инициализация модального окна
 const initializeModal = (popup) => {
   if (popup && popup.classList.contains("popup")) {
-    // Добавление модификатора popup для анимации при его открытии/закрытии
+    //* Добавление модификатора popup для анимации при его открытии/закрытии
     if (!popup.classList.contains("popup_is-animated"))
       popup.classList.add("popup_is-animated");
-    
+
     //* Назначение обработчиков закрытия popup по...
     //... кнопке ❌ popup просмотра карточки
     const btnClose = popup.querySelector("button.popup__close");

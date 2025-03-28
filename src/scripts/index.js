@@ -1,7 +1,18 @@
 import initialCards from "../components/cards.js";
 import { createCard } from "../components/card.js";
 import { openModal, closeModal, initializeModal } from "../components/modal.js";
+import { enableValidation, clearValidation } from "../components/validation.js";
 import "../pages/index.css";
+
+//! Константы
+const SELECTORS = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
 
 //!  DOM узлы
 const cardsContainer = document.querySelector(".places__list"); // контейнер карточек
@@ -158,3 +169,5 @@ const appendCards = (cardList, cards) => {
 };
 
 appendCards(cardsContainer, initialCards);
+
+enableValidation(SELECTORS);

@@ -1,0 +1,12 @@
+.popup__error-message {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.25;
+  color: #ff0000;
+  padding-block-start: 5px;
+  min-block-size: 30px;
+  display: block;
+  border: 1px dashed navy;
+}

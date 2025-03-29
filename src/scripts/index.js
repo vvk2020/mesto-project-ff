@@ -9,7 +9,7 @@ const SELECTORS = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
+  inactiveButtonClass: "popup__button_inactive",
   inputErrorClass: "popup__input_type_error",
   errorClass: "popup__error_visible",
 };
@@ -58,18 +58,40 @@ function handleShowCard(card) {
       if (profilePopup) {
         setupEditProfilePopup(); // настройка popup
         openModal(profilePopup); // открытие popup
+
+        // Очистка статусов ошибок ввода в полях popup
+        const inputList = Array.from(
+          profilePopup.querySelectorAll(SELECTORS.inputSelector)
+        );
+        inputList.forEach((input) => {
+          const errorElement = profilePopup.querySelector(`.${input.id}-error`);
+          // // Вариант 1. Простая очистка
+          // errorElement.textContent = "";
+          // input.classList.remove(SELECTORS.inputErrorClass);
+          // ... реинициализация кнопки
+
+          // Вариант 2: принудительная генерация input-события
+          input.dispatchEvent(new Event("input")); // отправка события
+        });
       }
     });
   }
 
   //* ... кнопки открытия popup создания карточки
   if (btnAddCard) {
+    // Добавление обработчика открытия модального окна и сброс формы
     btnAddCard.addEventListener("click", () => {
       if (newCardPopup) {
         resetNewCardPopupForm(); // настройка popup (сброс формы)
         openModal(newCardPopup); // открытие popup
       }
     });
+
+    // clearValidation()
+
+    // const inputList = Array.from(
+    //   profilePopup.querySelectorAll(SELECTORS.inputSelector)
+    // );
   }
 
   //* ... закрытия popup и его преднастройка

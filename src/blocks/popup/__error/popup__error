@@ -1,4 +1,4 @@
-.popup__error-message {
+.popup__error {
   font-family: "Inter";
   font-style: normal;
   font-weight: 400;
@@ -6,7 +6,12 @@
   line-height: 1.25;
   color: #ff0000;
   padding-block-start: 5px;
-  min-block-size: 30px;
+  min-block-size: 30px; /* 2 строки текста */
   display: block;
-  border: 1px dashed navy;
+  opacity: 0;
+}
+
+
+.popup__error_visible {
+  opacity: 1;
 }

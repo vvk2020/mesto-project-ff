@@ -63,16 +63,10 @@ function handleShowCard(card) {
         const inputList = Array.from(
           profilePopup.querySelectorAll(SELECTORS.inputSelector)
         );
-        inputList.forEach((input) => {
-          const errorElement = profilePopup.querySelector(`.${input.id}-error`);
-          // // Вариант 1. Простая очистка
-          // errorElement.textContent = "";
-          // input.classList.remove(SELECTORS.inputErrorClass);
-          // ... реинициализация кнопки
 
-          // Вариант 2: принудительная генерация input-события
-          input.dispatchEvent(new Event("input")); // отправка события
-        });
+        // Сброс ошибок ввода и деактивация submit-кнопки
+        const formEditProfile = profilePopup.querySelector(".popup__form");
+        clearValidation(formEditProfile);
       }
     });
   }
@@ -84,14 +78,12 @@ function handleShowCard(card) {
       if (newCardPopup) {
         resetNewCardPopupForm(); // настройка popup (сброс формы)
         openModal(newCardPopup); // открытие popup
+
+        // Сброс ошибок ввода и деактивация submit-кнопки
+        const formCardProfile = newCardPopup.querySelector(".popup__form");
+        clearValidation(formCardProfile);
       }
     });
-
-    // clearValidation()
-
-    // const inputList = Array.from(
-    //   profilePopup.querySelectorAll(SELECTORS.inputSelector)
-    // );
   }
 
   //* ... закрытия popup и его преднастройка

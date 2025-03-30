@@ -1,22 +1,23 @@
-let CONFIG = {}; // параметры конфигурации валидации
+let CONFIG = {}; //! параметры конфигурации валидации
 
-// Определение валидности полей ввода
+//! Контроль доспности submit-кнопки (disable=true - кнопка блокирована)
+const enableButton = (button, disable) => {
+  button.disabled = disable;
+  if (disable) button.classList.add(CONFIG.inactiveButtonClass);
+  else button.classList.remove(CONFIG.inactiveButtonClass);
+};
+
+//! Определение валидности полей ввода
 const hasInvalidInput = (inputList) => {
   return inputList.some((inputElement) => {
     return !inputElement.validity.valid;
   });
 };
 
-//! Контроль доступности submit-кнопки по состоянию полей ввода:
+//! Управление доступностью submit-кнопки по состоянию полей ввода:
 //! если хотя бы один input невалидный, то submit-кнопка не доступна
 const toggleButtonState = (inputList, button) => {
-  if (hasInvalidInput(inputList)) {
-    button.disabled = true;
-    button.classList.add(CONFIG.inactiveButtonClass);
-  } else {
-    button.disabled = false;
-    button.classList.remove(CONFIG.inactiveButtonClass);
-  }
+  enableButton(button, hasInvalidInput(inputList));
 };
 
 //!
@@ -58,7 +59,6 @@ const setEventListeners = (form) => {
   // Добавление обработчиков всем полям ввода формы
   inputList.forEach((input) => {
     input.addEventListener("input", () => {
-      // console.log("input.validity:", input.validity);
       //* Контроль отображения кастомного сообщения об ошибке ввода
       isValid(form, input);
       // Вызовем toggleButtonState и передадим ей массив полей и кнопку
@@ -78,7 +78,6 @@ function enableValidation({
   errorClass,
 } = {}) {
   CONFIG = arguments[0]; // Инициализация параметров конфигурации модуля
-  // console.log("CONFIG:", CONFIG);
 
   // Создание списка форм с input-полями
   const formsList = Array.from(
@@ -93,24 +92,14 @@ function enableValidation({
 }
 
 //! Очистка ошибок валидации формы и деактивация кнопки (при неудачной валидации)
-function clearValidation(
-  form
-  // {
-  //   formSelector,
-  //   inputSelector,
-  //   submitButtonSelector,
-  //   inactiveButtonClass,
-  //   inputErrorClass,
-  //   errorClass,
-  // } = {}
-) {
+function clearValidation(form) {
   // Очистка ошибок ввода данных в поля формы
   const inputList = Array.from(form.querySelectorAll(CONFIG.inputSelector));
   inputList.forEach((input) => hideInputError(form, input));
 
   // Деактивация submit-кнопки
   const button = form.querySelector(CONFIG.submitButtonSelector);
-  toggleButtonState(inputList, button);
+  enableButton(button, true);
 }
 
 export { enableValidation, clearValidation };

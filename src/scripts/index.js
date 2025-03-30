@@ -4,7 +4,9 @@ import { openModal, closeModal, initializeModal } from "../components/modal.js";
 import { enableValidation, clearValidation } from "../components/validation.js";
 import "../pages/index.css";
 
-//! Константы
+import { getCards, getProfile, setProfile } from "../components/api.js";
+
+//! Селекторы
 const SELECTORS = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
@@ -13,6 +15,8 @@ const SELECTORS = {
   inputErrorClass: "popup__input_type_error",
   errorClass: "popup__error_visible",
 };
+
+// class Profile {}
 
 //!  DOM узлы
 const cardsContainer = document.querySelector(".places__list"); // контейнер карточек
@@ -28,6 +32,7 @@ const btnAddCard = document.querySelector(".profile__add-button"); // добав
 //* Источники данных для форм popup
 const nameProfile = document.querySelector(".profile__title"); // имя профиля
 const descrProfile = document.querySelector(".profile__description"); // описание профиля
+const avatarProfile = document.querySelector(".profile__image"); // описание профиля
 
 //* Элементы popup просмотра карточки
 const imageCardViewPopup = cardViewPopup.querySelector("img.popup__image");
@@ -76,7 +81,7 @@ function handleShowCard(card) {
     // Добавление обработчика открытия модального окна и сброс формы
     btnAddCard.addEventListener("click", () => {
       if (newCardPopup) {
-        resetNewCardPopupForm(); // настройка popup (сброс формы)
+        resetNewCardPopupForm(); // сброс формы
         openModal(newCardPopup); // открытие popup
 
         // Сброс ошибок ввода и деактивация submit-кнопки
@@ -106,6 +111,7 @@ function setHandlerFormSubmit(formName, handler) {
 function handleEditProfileSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
   const data = serializeForm(evt.target); // подготовка данных формы
+  console.log('handleEditProfileSubmit:', data);
   // Трансфер данных из формы на страницу
   if (data.get("name")) nameProfile.textContent = data.get("name");
   if (data.get("description"))
@@ -182,6 +188,41 @@ const appendCards = (cardList, cards) => {
   });
 };
 
-appendCards(cardsContainer, initialCards);
+const changeProfileData = (name, about, avatar) => {
+  if (nameProfile && name) {
+    nameProfile.textContent = name;
+  }
+  if (descrProfile && name) {
+    descrProfile.textContent = about;
+  }
+  if (descrProfile && avatar) {
+    avatarProfile.style["background-image"] = avatar;
+  }
+};
 
-enableValidation(SELECTORS);
+//! Инициализация (сразу после загрузил HTML и построения DOM-дерева)
+document.addEventListener("DOMContentLoaded", () => {
+  //* Подключение валидации форм
+  enableValidation(SELECTORS);
+
+  //* Изменение отображения профиля в соответствии с данными сервера
+  getProfile().then((res) => {
+    console.log("getProfile():", res);
+    changeProfileData(res.name, res.about, res.avatar);
+  }).catch(()=>{
+    // ДОПОЛНИТЬ ВЫВОД ОШИБКИ В ОТДЕЛЬНЫЙ POPUP    
+  });
+
+  //* Загрузка карточек с сервера
+  // getCards().then((result) => {
+  //   console.log("getCards():", result);
+  // });
+
+  //* Изменение параметров профиля
+  setProfile("лмм", "scientist").then((result) => {
+    console.log("setProfile():", result);
+  });
+});
+
+//! Добавление локально сохраненных карточек
+appendCards(cardsContainer, initialCards);

@@ -61,7 +61,6 @@ const setEventListeners = (form) => {
     input.addEventListener("input", () => {
       //* Контроль отображения кастомного сообщения об ошибке ввода
       isValid(form, input);
-      // Вызовем toggleButtonState и передадим ей массив полей и кнопку
       toggleButtonState(inputList, button);
     });
   });

@@ -18,15 +18,11 @@
       </header>
       <main class="content">
         <section class="profile page__section">
-          <div
-            class="profile__image"
-            style="
-              background-image: url(<%=require('./images/avatar.jpg')%>);
-            "></div>
+          <div class="profile__image"></div>
           <div class="profile__info">
-            <h1 class="profile__title">Жак-Ив Кусто</h1>
+            <h1 class="profile__title"></h1>
             <button class="profile__edit-button" type="button"></button>
-            <p class="profile__description">Исследователь океана</p>
+            <p class="profile__description"></p>
           </div>
           <button class="profile__add-button" type="button"></button>
         </section>
@@ -35,7 +31,7 @@
         </section>
       </main>
       <footer class="footer page__section">
-        <p class="footer__copyright">© 2021 Mesto Russia</p>
+        <p class="footer__copyright">© 2025 Mesto Russia</p>
       </footer>
       <div class="popup popup_type_edit popup_is-animated">
         <div class="popup__content">
@@ -54,14 +50,13 @@
                 pattern="[\-\sa-zA-Zёа-яЁА-Я]+"
                 data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
                 required />
-              <span
-                class="popup__error popup__input_type_name-error"></span>
+              <span class="popup__error popup__input_type_name-error"></span>
             </div>
             <div class="popup__input_type">
               <input
                 id="popup__input_type_description"
                 type="text"
-                name="description"
+                name="about"
                 class="popup__input popup__input_type_description"
                 placeholder="Занятие"
                 minlength="2"
@@ -73,6 +68,34 @@
                 class="popup__error popup__input_type_description-error"></span>
             </div>
             <button type="submit" class="button popup__button">
+              Сохранить
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="popup popup_type_avatar popup_is-animated">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="edit-avatar">
+
+
+
+            <div class="popup__input_type">
+              <input
+                id="popup__input_type_avatar"
+                type="url"
+                name="link"
+                class="popup__input popup__input_type_avatar"
+                placeholder="Ссылка на аватар"
+                required />
+              <span class="popup__error popup__input_type_avatar-error"></span>
+            </div>
+
+
+
+
+            <button class="button popup__button popup__avatar-button" type="submit">
               Сохранить
             </button>
           </form>
@@ -106,8 +129,7 @@
                 class="popup__input popup__input_type_url"
                 placeholder="Ссылка на картинку"
                 required />
-              <span
-                class="popup__error popup__input_type_url-error"></span>
+              <span class="popup__error popup__input_type_url-error"></span>
             </div>
             <button type="submit" class="button popup__button">
               Сохранить

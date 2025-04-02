@@ -22,8 +22,6 @@ const SELECTORS = {
   errorClass: "popup__error_visible",
 };
 
-// class Profile {}
-
 //!  DOM узлы
 const cardsContainer = document.querySelector(".places__list"); // контейнер карточек
 //* popup's
@@ -99,7 +97,6 @@ function handleShowCard(card) {
   }
 
   //* ... кнопки открытия popup обновления аватар
-
   if (avatarProfile) {
     // Обработка наведения курсора на аватарку
     avatarProfile.addEventListener("mouseenter", () => {
@@ -145,8 +142,8 @@ function setHandlerFormSubmit(formName, handler) {
 
 function handleEditProfileSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
+  toggleSubmitButtonText(profilePopup); // toggle текста sumit-кнопки = "Схранение..."
   const data = serializeForm(evt.target); // подготовка данных формы
-
   // Данные из формы получены (объект для body запроса определен)?
   if (data) {
     // Отправка данных на сервер
@@ -156,21 +153,27 @@ function handleEditProfileSubmit(evt) {
       })
       .catch((err) => {
         console.log(err); // вывод ошибкb в консоль
+      })
+      .finally(() => {
+        closeModal(profilePopup);
+        toggleSubmitButtonText(profilePopup); // toggle текста sumit-кнопки = "Схранить"
       });
-  }
-  closeModal(profilePopup);
+  } else closeModal(profilePopup);
 }
 
 function handleNewCardSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
+  toggleSubmitButtonText(newCardPopup); // toggle текста sumit-кнопки = "Схранение..."
   const data = serializeForm(evt.target); // подготовка данных формы
-
   if (data) {
     // Создание карточки
     const newCard = createCard(data, { onShow: handleShowCard });
     // Добавление созданной карточки в конец списка карточек
     if (newCard && cardsContainer) cardsContainer.prepend(newCard);
   }
+
+  //! Переделать как в handleEditProfileSubmit (см. .finally() и toggleSubmitButtonText())
+
   closeModal(newCardPopup);
 }
 
@@ -181,37 +184,23 @@ function handleAvatarSubmit(evt) {
   // Данные из формы получены (объект для body запроса определен)?
   if (data && data.link) {
     const avatar = data.link;
-    // console.log('=> data.link:', data.link);
-
     // Проверка: MIME-тип ссылки - image?
     if (avatar) {
-      getHeaders(URL)
+      getHeaders(avatar)
         .then((resp) => {
-          if (resp.ok) {
-            const contentType = resp.headers.get("Content-Type"); // тип контента в ответе
-            // Проверка: тип контента - изображение?
-            if (contentType && contentType.startsWith("image/")) {
-
-              // Аватарки для тестов
-              // https://avatars.mds.yandex.net/get-shedevrum/12157372/7365b14fc70811eea7e25e2095d778fc/orig
-              // https://masterpiecer-images.s3.yandex.net/2a7fbea67f0e11ee8071ceda526c50ab:upscaled
-              // https://avatars.mds.yandex.net/i?id=6e0d4ed1ccf9bd77f6cb44ca7a097ed2c7a9765c-2360343-images-thumbs&n=13
-              // https://dianegottsman.com/wp-content/uploads/2019/03/iStock-912327036.jpg
-
-              // Передача в запросе ссылки на новый аватар
-              setProfileAvatar({ avatar })
-                .then((avatarData) => {
-                  console.log("++ avatarData:", avatarData);
-                  changeProfileData(avatarData);
-                })
-                .catch((err) => {
-                  console.log(err); // вывод ошибкb в консоль
-                });
-            }
-          }
+          if (!resp.ok) return Promise.reject(resp.status);
+          // Проверка: тип контента - изображение?
+          const contentType = resp.headers.get("Content-Type"); // тип контента в ответе
+          if (!contentType || !contentType.startsWith("image/"))
+            return Promise.reject(`ссылка не на картинку`);
+          // Сохранение fetch-запросом ссылки на новый аватар
+          return setProfileAvatar({ avatar });
+        })
+        .then((avatarData) => {
+          changeProfileData(avatarData); // вывод данных профиля и его аватар на страницу
         })
         .catch((err) => {
-          console.log(err);
+          console.log("Ошибка обновления аватар:", err);
         });
     }
   }
@@ -219,6 +208,23 @@ function handleAvatarSubmit(evt) {
 }
 
 //! Вспомогательные функции popup и его форм
+
+//* Изменение текста submit-кнопки popup в процессе сохранения
+function toggleSubmitButtonText(popup) {
+  if (popup) {
+    const button = popup.querySelector(
+      'button[type="submit"].button.popup__button'
+    );
+    if (button) {
+      const textMap = {
+        Сохранить: "Сохранение...",
+        "Сохранение...": "Сохранить",
+      };
+      button.textContent =
+        textMap[button.textContent.trim()] || button.textContent;
+    }
+  }
+}
 
 //* Преднастройка popup отображения карточки
 function setupCardViewPopup(card) {
@@ -286,6 +292,7 @@ const appendCards = (cardList, cards) => {
   });
 };
 
+//! Вывод данных профиля и его аватар на страницу
 const changeProfileData = ({ name, about, avatar }) => {
   if (nameProfile && name) {
     nameProfile.textContent = name;
@@ -322,68 +329,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //! Добавление локально сохраненных карточек
 appendCards(cardsContainer, initialCards);
-
-const URL =
-  "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg";
-
-// async function checkImageMimeType(imageUrl) {
-//   try {
-//     // Выполняем HEAD-запрос (без загрузки тела изображения)
-//     const response = await fetch(imageUrl, {
-//       method: "HEAD",
-//       mode: "cors", // Для кросс-доменных запросов
-//       cache: "no-cache", // Игнорируем кеш
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     // Получаем Content-Type из заголовков
-//     const contentType = response.headers.get("Content-Type");
-
-//     // Проверяем, является ли тип изображением
-//     if (contentType && contentType.startsWith("image/")) {
-//       console.log("Valid image type:", contentType);
-//       return contentType; // Возвращаем MIME-тип (например "image/jpeg")
-//     } else {
-//       throw new Error(`Not an image. Content-Type: ${contentType}`);
-//     }
-//   } catch (error) {
-//     console.error("Error checking image:", error);
-//     return null;
-//   }
-// }
-
-// // Использование
-// //! Определение MIME-типа из заголовка ответа
-// checkImageMimeType(URL).then((mimeType) => {
-//   if (mimeType) {
-//     console.log("Image is valid, type:", mimeType);
-//     // Действия с валидным изображением
-//   } else {
-//     console.log("Not a valid image");
-//   }
-// });
-
-// getpQuery2({ URL: URL, method: "HEAD" });
-
-// function getpQuery2({ URL, method, headers = {}, body = null }) {
-//   console.log("URL:", URL);
-//   return fetch(URL, {
-//     method,
-//     headers,
-//     ...(body && { body: JSON.stringify(body) }),
-//   })
-//     .then((res) => {
-//       console.log(
-//         '=> headers.get("Content-Type"):',
-//         res.headers.get("Content-Type")
-//       );
-//       if (res.ok) return res.json();
-//       return Promise.reject(res.status);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// }

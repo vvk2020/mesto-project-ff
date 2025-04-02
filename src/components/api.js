@@ -50,16 +50,11 @@ function setProfile(body) {
 
 //* Запрос MIME-типа в заголовке
 function getHeaders(url) {
-  // console.log("url", url);
   return httpBaseQuery({
     url,
     method: "HEAD",
     mode: "cors", // для кросс-доменных запросов
     cache: "no-cache", // игнорируем кеш
-    // headers: {
-    //   "Content-Type": "application/json",
-    // },
-    // body,
   });
 }
 
@@ -74,15 +69,5 @@ function setProfileAvatar(body) {
     body,
   });
 }
-// function setProfile(name, about) {
-//   return httpQuery({
-//     endURL: "users/me",
-//     method: "PATCH",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: { name, about },
-//   });
-// }
 
 export { getCards, getProfile, setProfile, setProfileAvatar, getHeaders };

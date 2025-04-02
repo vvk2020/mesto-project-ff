@@ -142,7 +142,7 @@ function setHandlerFormSubmit(formName, handler) {
 
 function handleEditProfileSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
-  toggleSubmitButtonText(profilePopup); // toggle текста sumit-кнопки = "Схранение..."
+  toggleSubmitButtonText(profilePopup); // toggle текста submit-кнопки ("Схранение...")
   const data = serializeForm(evt.target); // подготовка данных формы
   // Данные из формы получены (объект для body запроса определен)?
   if (data) {
@@ -156,14 +156,14 @@ function handleEditProfileSubmit(evt) {
       })
       .finally(() => {
         closeModal(profilePopup);
-        toggleSubmitButtonText(profilePopup); // toggle текста sumit-кнопки = "Схранить"
+        toggleSubmitButtonText(profilePopup); // toggle текста submit-кнопки ("Схранить")
       });
   } else closeModal(profilePopup);
 }
 
 function handleNewCardSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
-  toggleSubmitButtonText(newCardPopup); // toggle текста sumit-кнопки = "Схранение..."
+  toggleSubmitButtonText(newCardPopup); // toggle текста submit-кнопки ("Схранение...")
   const data = serializeForm(evt.target); // подготовка данных формы
   if (data) {
     // Создание карточки
@@ -172,13 +172,14 @@ function handleNewCardSubmit(evt) {
     if (newCard && cardsContainer) cardsContainer.prepend(newCard);
   }
 
-  //! Переделать как в handleEditProfileSubmit (см. .finally() и toggleSubmitButtonText())
+  //! ЗДЕСЬ !!! Переделать как в handleEditProfileSubmit (см. .finally() и toggleSubmitButtonText())
 
   closeModal(newCardPopup);
 }
 
 function handleAvatarSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
+  toggleSubmitButtonText(avatarPopup); // toggle текста submit-кнопки ("Схранение...")
   const data = serializeForm(evt.target); // подготовка данных формы
 
   // Данные из формы получены (объект для body запроса определен)?
@@ -201,10 +202,13 @@ function handleAvatarSubmit(evt) {
         })
         .catch((err) => {
           console.log("Ошибка обновления аватар:", err);
+        })
+        .finally(() => {
+          closeModal(avatarPopup);
+          toggleSubmitButtonText(avatarPopup); // toggle текста submit-кнопки ("Схранить")
         });
-    }
-  }
-  closeModal(avatarPopup);
+    } else closeModal(avatarPopup);
+  } else closeModal(avatarPopup);
 }
 
 //! Вспомогательные функции popup и его форм

@@ -11,6 +11,7 @@ import {
   setProfile,
   setProfileAvatar,
   getHeaders,
+  saveCard,
 } from "../components/api.js";
 
 //! Профиль
@@ -37,7 +38,7 @@ const avatarPopup = document.querySelector(".popup_type_avatar"); // просм�
 //* Кнопки открытия popup
 const btnEditProfile = document.querySelector(".profile__edit-button"); // редактирования профиля
 const btnAddCard = document.querySelector(".profile__add-button"); // добавления новой карточки
-const btnAvatar = document.querySelector(".popup__avatar-button"); // обновления аватар
+// const btnAvatar = document.querySelector(".popup__avatar-button"); // обновления аватар
 
 //* Источники данных для форм popup
 const nameProfile = document.querySelector(".profile__title"); // имя профиля
@@ -169,16 +170,33 @@ function handleNewCardSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
   toggleSubmitButtonText(newCardPopup); // toggle текста submit-кнопки ("Схранение...")
   const data = serializeForm(evt.target); // подготовка данных формы
+  // Данные из формы получены (объект для body запроса определен)?
   if (data) {
-    // Создание карточки
-    const newCard = createCard(data, { onShow: handleShowCard });
-    // Добавление созданной карточки в конец списка карточек
-    if (newCard && cardsContainer) cardsContainer.prepend(newCard);
-  }
-
-  //! ЗДЕСЬ !!! Переделать как в handleEditProfileSubmit (см. .finally() и toggleSubmitButtonText())
-
-  closeModal(newCardPopup);
+    // Отправка данных на сервер
+    console.log("ZZZ", data);
+    saveCard({ name: data["place-name"], link: data.link })
+    // saveCard(    {name: 'QWERTY', link: 'https://www.zastavki.com/pictures/originals/2014/Nature___Sea_Norway_fjord_077409_.jpg'})
+    // saveCard({
+    //   name: "QWERTY",
+    //   link: "https://upload.wikimedia.org/wikipedia/commons/7/78/Geirangerfjord_%286-2007%29.jpg",
+    // })
+      .then((respData) => {
+        console.log("XXX", respData);
+        if (respData) {
+          // Создание карточки
+          const newCard = createCard(respData, profile._id, { onShow: handleShowCard });
+          // Добавление созданной карточки в начало списка
+          if (newCard && cardsContainer) cardsContainer.prepend(newCard);
+        }
+      })
+      .catch((err) => {
+        console.log("Ошибка сохранения карточки:", err); // вывод ошибкb в консоль
+      })
+      .finally(() => {
+        closeModal(newCardPopup);
+        toggleSubmitButtonText(newCardPopup); // toggle текста submit-кнопки ("Схранить")
+      });
+  } else closeModal(newCardPopup);
 }
 
 function handleAvatarSubmit(evt) {
@@ -295,7 +313,7 @@ function serializeForm(form) {
 //! Вывод лакльно сохраненных карточек на страницу из initialCards[]
 const appendCards = (cardList, cards) => {
   cards.forEach((card) => {
-    const newCard = createCard(card, { onShow: handleShowCard });
+    const newCard = createCard(card, profile._id, { onShow: handleShowCard });
     if (newCard) cardList.append(newCard);
   });
 };
@@ -325,7 +343,7 @@ const initializeApp = () => {
       } else return Promise.reject("Ошибка запроса данных профиля");
       // Обработка promise запроса данных карточек мест
       if (resps[1] && Array.isArray(resps[1]) && resps[1].length > 0) {
-        //! Добавление локально сохраненных карточек
+        // Добавление карточек, полученных сс сервера
         appendCards(cardsContainer, resps[1]);
       } else return Promise.reject("Ошибка запроса карточек мест");
     })

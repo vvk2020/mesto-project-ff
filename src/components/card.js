@@ -4,6 +4,7 @@ const cardTemplate = document.querySelector("#card-template").content;
 //* Функция создания карточки
 const createCard = (
   card,
+  profileId,
   { onShow, onLike = likeCard, onDelete = deleteCard } = {}
 ) => {
   // Клонирование карточки по шаблону
@@ -29,15 +30,24 @@ const createCard = (
     newCard.querySelector(".card__title").textContent = card.name;
 
     // Обработчик удаления карточки (автоматически удаляется после первого срабатывания)
+    // console.log(profileId);
     const deleteButton = newCard.querySelector(".card__delete-button");
-    if (deleteButton)
-      deleteButton.addEventListener(
-        "click",
-        () => {
-          onDelete(newCard);
-        },
-        { once: true }
-      );
+    if (deleteButton && profileId) {
+      // Если карточка - своя, то добавляем обработчик удаления, 
+      // если нет - скрываем кнопку  удаления
+      if ((card.owner._id === profileId)) {
+        deleteButton.addEventListener(
+          "click",
+          () => {
+            onDelete(newCard);
+          },
+          { once: true }
+        );
+      } else {
+        deleteButton.style.display = 'none';
+        // console.log('не твоя карточка')
+      }
+    }
 
     // Обработка like/dislike карточки по кнопке 🤍
     const likeButton = newCard.querySelector(".card__like-button");

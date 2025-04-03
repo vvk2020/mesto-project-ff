@@ -31,6 +31,28 @@ function getCards() {
   return httpQuery({ endURL: "cards" });
 }
 
+//* Запрос добавления новой карточки
+function saveCard(body) {
+  if (body.name && body.link) {
+    // Проверка: тип контента body.link - изображение?
+    return getHeaders(body.link).then((resp) => {
+      if (!resp.ok) return Promise.reject(resp.status);
+      const contentType = resp.headers.get("Content-Type"); // тип контента в ответе
+      if (!contentType || !contentType.startsWith("image/"))
+        return Promise.reject(`ссылка не на картинку`);
+      // Сохранение карточки на сервере
+      return httpQuery({
+        endURL: "cards",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      }).then((saveResp) => saveResp);
+    });
+  }
+}
+
 //* Запрос данных своего профиля
 function getProfile() {
   return httpQuery({ endURL: "users/me" });
@@ -70,4 +92,11 @@ function setProfileAvatar(body) {
   });
 }
 
-export { getCards, getProfile, setProfile, setProfileAvatar, getHeaders };
+export {
+  getCards,
+  getProfile,
+  setProfile,
+  setProfileAvatar,
+  getHeaders,
+  saveCard,
+};

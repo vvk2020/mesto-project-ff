@@ -53,6 +53,16 @@ function saveCard(body) {
   }
 }
 
+//* Запрос удаления карточки по ее Id
+function deleteCard(cardId) {
+  console.log(`del cards/${cardId}`);
+  return httpBaseQuery({
+    url: `${BASE_URL}cards/${cardId}`,
+    method: "DELETE",
+    headers: { authorization: API_TOKEN },
+  });
+}
+
 //* Запрос данных своего профиля
 function getProfile() {
   return httpQuery({ endURL: "users/me" });
@@ -99,4 +109,5 @@ export {
   setProfileAvatar,
   getHeaders,
   saveCard,
+  deleteCard,
 };

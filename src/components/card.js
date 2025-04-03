@@ -5,7 +5,7 @@ const cardTemplate = document.querySelector("#card-template").content;
 const createCard = (
   card,
   profileId,
-  { onShow, onLike = likeCard, onDelete = deleteCard } = {}
+  { onShow, onDelete, onLike = likeCard } = {}
 ) => {
   // Клонирование карточки по шаблону
   const newCard = cardTemplate
@@ -13,6 +13,9 @@ const createCard = (
     .cloneNode(true);
   // Если клон успешно создан, то его инициализация
   if (newCard) {
+    // Сохранение Id карточки (для removeCard() - удаления со страницы)
+    newCard.dataset.cardId = card._id;
+
     // Картинка карточки
     const cardImage = newCard.querySelector(".card__image");
 
@@ -30,23 +33,19 @@ const createCard = (
     newCard.querySelector(".card__title").textContent = card.name;
 
     // Обработчик удаления карточки (автоматически удаляется после первого срабатывания)
-    // console.log(profileId);
     const deleteButton = newCard.querySelector(".card__delete-button");
     if (deleteButton && profileId) {
-      // Если карточка - своя, то добавляем обработчик удаления, 
+      // Если карточка - своя, то добавляем обработчик удаления,
       // если нет - скрываем кнопку  удаления
-      if ((card.owner._id === profileId)) {
+      if (card.owner._id === profileId) {
         deleteButton.addEventListener(
           "click",
           () => {
-            onDelete(newCard);
+            onDelete(card._id); // card._id - для удаления
           },
           { once: true }
         );
-      } else {
-        deleteButton.style.display = 'none';
-        // console.log('не твоя карточка')
-      }
+      } else deleteButton.style.display = "none";
     }
 
     // Обработка like/dislike карточки по кнопке 🤍
@@ -72,11 +71,16 @@ function likeCard(likeButton) {
 }
 
 //* Функция удаления карточки
-const deleteCard = (card) => {
+const removeCard = (cardId) => {
+  // Поиск карточки по ее cardId
+  const card = document.querySelector(
+    `.places__item.card[data-card-id="${cardId}"]`
+  );
+  // Удаление карточки со страницы
   if (card) {
     card.remove(); // удаление
     card = null; //  пометка для GC
   }
 };
 
-export { createCard, deleteCard, likeCard };
+export { createCard, removeCard, likeCard };

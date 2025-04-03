@@ -1,6 +1,6 @@
 // import initialCards from "../components/cards.js";
 import { Profile } from "../components/profile.js";
-import { createCard } from "../components/card.js";
+import { createCard, removeCard } from "../components/card.js";
 import { openModal, closeModal, initializeModal } from "../components/modal.js";
 import { enableValidation, clearValidation } from "../components/validation.js";
 import "../pages/index.css";
@@ -12,6 +12,7 @@ import {
   setProfileAvatar,
   getHeaders,
   saveCard,
+  deleteCard,
 } from "../components/api.js";
 
 //! Профиль
@@ -34,6 +35,7 @@ const profilePopup = document.querySelector(".popup.popup_type_edit"); // ред
 const newCardPopup = document.querySelector(".popup.popup_type_new-card"); // создания карточки
 const cardViewPopup = document.querySelector(".popup.popup_type_image"); // просмотра карточки
 const avatarPopup = document.querySelector(".popup_type_avatar"); // просмотра карточки
+const cardDelConfirmPopup = document.querySelector(".popup_confirm-del-card"); // просмотра карточки
 
 //* Кнопки открытия popup
 const btnEditProfile = document.querySelector(".profile__edit-button"); // редактирования профиля
@@ -137,6 +139,7 @@ function handleShowCard(card) {
   setHandlerFormSubmit("edit-profile", handleEditProfileSubmit);
   setHandlerFormSubmit("new-place", handleNewCardSubmit);
   setHandlerFormSubmit("edit-avatar", handleAvatarSubmit);
+  setHandlerFormSubmit("confirm-del-card", handleCardDelSubmit);
 })();
 
 function setHandlerFormSubmit(formName, handler) {
@@ -173,18 +176,14 @@ function handleNewCardSubmit(evt) {
   // Данные из формы получены (объект для body запроса определен)?
   if (data) {
     // Отправка данных на сервер
-    console.log("ZZZ", data);
     saveCard({ name: data["place-name"], link: data.link })
-    // saveCard(    {name: 'QWERTY', link: 'https://www.zastavki.com/pictures/originals/2014/Nature___Sea_Norway_fjord_077409_.jpg'})
-    // saveCard({
-    //   name: "QWERTY",
-    //   link: "https://upload.wikimedia.org/wikipedia/commons/7/78/Geirangerfjord_%286-2007%29.jpg",
-    // })
       .then((respData) => {
-        console.log("XXX", respData);
         if (respData) {
           // Создание карточки
-          const newCard = createCard(respData, profile._id, { onShow: handleShowCard });
+          const newCard = createCard(respData, profile._id, {
+            onShow: handleShowCard,
+            onDelete: handleDeleteCard,
+          });
           // Добавление созданной карточки в начало списка
           if (newCard && cardsContainer) cardsContainer.prepend(newCard);
         }
@@ -231,6 +230,28 @@ function handleAvatarSubmit(evt) {
         });
     } else closeModal(avatarPopup);
   } else closeModal(avatarPopup);
+}
+
+function handleCardDelSubmit(evt) {
+  evt.preventDefault(); // блокировка стандартной обработки формы
+  if ("cardId" in evt.target.dataset) {
+    console.log("dataset.cardId:", evt.target.dataset.cardId);
+    const cardId = evt.target.dataset.cardId;
+
+    deleteCard(cardId)
+      .then((resp) => {
+        if (!resp.ok) return Promise.reject(resp.status);
+        removeCard(cardId); // удаление карточки со страницы
+      })
+      .catch((err) => {
+        console.log("Ошибка удаления карточки:", err);
+      })
+      .finally(() => {
+        closeModal(cardDelConfirmPopup);
+      });
+    // Удаление аттрибута, хранящего Id карточки
+    delete evt.target.dataset.cardId;
+  } else closeModal(cardDelConfirmPopup);
 }
 
 //! Вспомогательные функции popup и его форм
@@ -310,10 +331,21 @@ function serializeForm(form) {
   }
 }
 
-//! Вывод лакльно сохраненных карточек на страницу из initialCards[]
+function handleDeleteCard(cardId) {
+  if (document.forms["confirm-del-card"]) {
+    // Передаем Id карточки в popup подтверждения удаления карточки
+    document.forms["confirm-del-card"].dataset.cardId = cardId;
+    openModal(cardDelConfirmPopup); // открытие popup
+  }
+}
+
+//! Вывод карточек на страницу
 const appendCards = (cardList, cards) => {
   cards.forEach((card) => {
-    const newCard = createCard(card, profile._id, { onShow: handleShowCard });
+    const newCard = createCard(card, profile._id, {
+      onShow: handleShowCard,
+      onDelete: handleDeleteCard,
+    });
     if (newCard) cardList.append(newCard);
   });
 };

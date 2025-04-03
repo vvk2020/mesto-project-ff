@@ -1,4 +1,5 @@
-import initialCards from "../components/cards.js";
+// import initialCards from "../components/cards.js";
+import { Profile } from "../components/profile.js";
 import { createCard } from "../components/card.js";
 import { openModal, closeModal, initializeModal } from "../components/modal.js";
 import { enableValidation, clearValidation } from "../components/validation.js";
@@ -11,6 +12,9 @@ import {
   setProfileAvatar,
   getHeaders,
 } from "../components/api.js";
+
+//! Профиль
+const profile = new Profile();
 
 //! Селекторы
 const SELECTORS = {
@@ -149,7 +153,7 @@ function handleEditProfileSubmit(evt) {
     // Отправка данных на сервер
     setProfile(data)
       .then((profileData) => {
-        changeProfileData(profileData);
+        renderProfile(profileData);
       })
       .catch((err) => {
         console.log(err); // вывод ошибкb в консоль
@@ -198,7 +202,7 @@ function handleAvatarSubmit(evt) {
           return setProfileAvatar({ avatar });
         })
         .then((avatarData) => {
-          changeProfileData(avatarData); // вывод данных профиля и его аватар на страницу
+          renderProfile(avatarData); // вывод данных профиля и его аватар на страницу
         })
         .catch((err) => {
           console.log("Ошибка обновления аватар:", err);
@@ -297,7 +301,7 @@ const appendCards = (cardList, cards) => {
 };
 
 //! Вывод данных профиля и его аватар на страницу
-const changeProfileData = ({ name, about, avatar }) => {
+const renderProfile = ({ name, about, avatar }) => {
   if (nameProfile && name) {
     nameProfile.textContent = name;
   }
@@ -309,27 +313,49 @@ const changeProfileData = ({ name, about, avatar }) => {
   }
 };
 
+const initializeApp = () => {
+  Promise.all([getProfile(), getCards()])
+    .then((resps) => {
+      console.log("resps:", resps);
+      // Обработка promise запроса данных профиля
+      if (resps[0]) {
+        profile.data = resps[0]; // обновлени локальных данных
+        console.log("profile.data", profile.data);
+        renderProfile(resps[0]);
+      } else return Promise.reject("Ошибка запроса данных профиля");
+      // Обработка promise запроса данных карточек мест
+      if (resps[1] && Array.isArray(resps[1]) && resps[1].length > 0) {
+        //! Добавление локально сохраненных карточек
+        appendCards(cardsContainer, resps[1]);
+      } else return Promise.reject("Ошибка запроса карточек мест");
+    })
+    .catch((err) => {
+      console.log(err); // вывод ошибкb в консоль
+    });
+};
+
 //! Инициализация (сразу после загрузил HTML и построения DOM-дерева)
 document.addEventListener("DOMContentLoaded", () => {
   //* Подключение валидации форм
   enableValidation(SELECTORS);
 
-  //* Отображение профиля в соответствии с данными сервера
-  getProfile()
-    .then((res) => {
-      changeProfileData(res);
-    })
-    .catch((err) => {
-      console.log(err); // вывод ошибкb в консоль
-    });
+  initializeApp();
 
-  //* Загрузка карточек с сервера
+  // //* Отображение профиля в соответствии с данными сервера
+  // getProfile()
+  //   .then((data) => {
+  //     if (data) {
+  //       profile.data = data; // обновлени локальных данных
+  //       console.log("profile.data", profile.data);
+  //       renderingProfile(data);
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     console.log(err); // вывод ошибкb в консоль
+  //   });
+
+  // //* Загрузка карточек с сервера
   // getCards().then((result) => {
   //   console.log("getCards():", result);
   // });
-
-  //* Захват click на .profile__image:hover::after (всплывающей иконке карандаша на аватарке)
 });
-
-//! Добавление локально сохраненных карточек
-appendCards(cardsContainer, initialCards);

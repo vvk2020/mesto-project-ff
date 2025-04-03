@@ -25,6 +25,7 @@ const createCard = (
       });
     }
 
+    // Отображение заголовка карточки
     newCard.querySelector(".card__title").textContent = card.name;
 
     // Обработчик удаления карточки (автоматически удаляется после первого срабатывания)
@@ -44,6 +45,13 @@ const createCard = (
       likeButton.addEventListener("click", () => {
         onLike(likeButton);
       });
+
+    // Отображение количества лайков карточки
+    const cardLikeCount = newCard.querySelector(".card__like-count");
+
+    if (cardLikeCount && card.likes && Array.isArray(card.likes)) {
+      cardLikeCount.textContent = card.likes.length;
+    }
   }
   return newCard;
 };

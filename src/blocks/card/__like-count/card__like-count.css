@@ -1,0 +1,9 @@
+.card__like-count {
+  padding-block-start: 3px;
+  color: #000;
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.2307;
+}

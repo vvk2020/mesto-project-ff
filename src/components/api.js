@@ -17,9 +17,9 @@ function httpQuery({ endURL, method, headers = {}, body }) {
   headers.authorization = API_TOKEN;
   // console.log("httpQuery() => body:", JSON.stringify(body, null, 2));
   return httpBaseQuery({ url: BASE_URL + endURL, method, headers, body }).then(
-    (res) => {
-      if (res.ok) return res.json();
-      return Promise.reject(`Ошибка: ${res.status}`);
+    (resp) => {
+      if (resp.ok) return resp.json();
+      return Promise.reject(`Ошибка: ${resp.status}`);
     }
   );
 }

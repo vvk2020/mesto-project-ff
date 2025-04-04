@@ -1,6 +1,7 @@
 //! Авторизация и доступ
 const BASE_URL = "https://nomoreparties.co/v1/wff-cohort-35/"; // базовый url
-const API_TOKEN = process.env.API_TOKEN; // токен
+// const API_TOKEN = process.env.API_TOKEN; // токен
+const API_TOKEN = "daac000b-c031-49fc-9356-0394a8a42db9"; // токен
 
 //! Унифицированная функция запроса к серверу, возвращающая его ответ
 const httpBaseQuery = ({ url, method = "GET", headers = {}, body = null }) => {

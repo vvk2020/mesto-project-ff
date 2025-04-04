@@ -41,7 +41,6 @@ const cardDelConfirmPopup = document.querySelector(".popup_confirm-del-card"); /
 //* Кнопки открытия popup
 const btnEditProfile = document.querySelector(".profile__edit-button"); // редактирования профиля
 const btnAddCard = document.querySelector(".profile__add-button"); // добавления новой карточки
-// const btnAvatar = document.querySelector(".popup__avatar-button"); // обновления аватар
 
 //* Источники данных для форм popup
 const nameProfile = document.querySelector(".profile__title"); // имя профиля
@@ -237,7 +236,6 @@ function handleAvatarSubmit(evt) {
 function handleCardDelSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
   if ("cardId" in evt.target.dataset) {
-    console.log("dataset.cardId:", evt.target.dataset.cardId);
     const cardId = evt.target.dataset.cardId;
 
     deleteCard(cardId)
@@ -328,7 +326,6 @@ function serializeForm(form) {
         const { name, value } = element;
         obj[name] = value;
       });
-    // console.log("serializeForm() => obj:", JSON.stringify(obj, null, 2));
     if (Object.keys(obj).length !== 0) return obj;
   }
 }
@@ -387,11 +384,9 @@ const renderProfile = ({ name, about, avatar }) => {
 const initializeApp = () => {
   Promise.all([getProfile(), getCards()])
     .then((resps) => {
-      console.log("resps:", resps);
       // Обработка promise запроса данных профиля
       if (resps[0]) {
         profile.data = resps[0]; // обновлени локальных данных
-        console.log("profile.data", profile.data);
         renderProfile(resps[0]);
       } else return Promise.reject("Ошибка запроса данных профиля");
       // Обработка promise запроса данных карточек мест
@@ -409,24 +404,5 @@ const initializeApp = () => {
 document.addEventListener("DOMContentLoaded", () => {
   //* Подключение валидации форм
   enableValidation(SELECTORS);
-
   initializeApp();
-
-  // //* Отображение профиля в соответствии с данными сервера
-  // getProfile()
-  //   .then((data) => {
-  //     if (data) {
-  //       profile.data = data; // обновлени локальных данных
-  //       console.log("profile.data", profile.data);
-  //       renderingProfile(data);
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.log(err); // вывод ошибкb в консоль
-  //   });
-
-  // //* Загрузка карточек с сервера
-  // getCards().then((result) => {
-  //   console.log("getCards():", result);
-  // });
 });

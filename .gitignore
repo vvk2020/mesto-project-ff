@@ -1,0 +1,12 @@
+.bak/
+dist/
+.fig/
+.hlp/
+node_modules/
+.review/
+.sh/ 
+.tmp/
+.vscode/
+TODO
+.env
+*.env

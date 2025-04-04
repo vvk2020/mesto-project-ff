@@ -352,7 +352,7 @@ function handleLikeCard(cardId, like) {
       // Воврат количества like карточки
       if (card.likes && Array.isArray(card.likes))
         return Promise.resolve(card.likes.length);
-      return Promise.reject('likes[] отсутствует');
+      return Promise.reject("likes[] отсутствует");
     })
     .catch((err) => {
       return Promise.reject(err);

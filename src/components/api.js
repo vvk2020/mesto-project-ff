@@ -3,36 +3,34 @@ const BASE_URL = "https://nomoreparties.co/v1/wff-cohort-35/"; // базовый
 const API_TOKEN = process.env.API_TOKEN; // токен
 
 //! Унифицированная функция запроса к серверу, возвращающая его ответ
-function httpBaseQuery({ url, method = "GET", headers = {}, body = null }) {
-  // console.log("httpBaseQuery() => body:", JSON.stringify(body, null, 2));
+const httpBaseQuery = ({ url, method = "GET", headers = {}, body = null }) => {
   return fetch(url, {
     method,
     headers,
     ...(body && { body: JSON.stringify(body) }),
   });
-}
+};
 
 //! Функция авторизированного запроса к серверу, возвращающая объект ответа
-function httpQuery({ endURL, method, headers = {}, body }) {
+const httpQuery = ({ endURL, method, headers = {}, body }) => {
   headers.authorization = API_TOKEN;
-  // console.log("httpQuery() => body:", JSON.stringify(body, null, 2));
   return httpBaseQuery({ url: BASE_URL + endURL, method, headers, body }).then(
     (resp) => {
       if (resp.ok) return resp.json();
       return Promise.reject(`Ошибка: ${resp.status}`);
     }
   );
-}
+};
 
 //! Прикладные функции запросов
 
 //* Запрос карточек мест (не только своих)
-function getCards() {
+const getCards = () => {
   return httpQuery({ endURL: "cards" });
-}
+};
 
 //* Запрос добавления новой карточки
-function saveCard(body) {
+const saveCard = (body) => {
   if (body.name && body.link) {
     // Проверка: тип контента body.link - изображение?
     return getHeaders(body.link).then((resp) => {
@@ -51,25 +49,24 @@ function saveCard(body) {
       }).then((saveResp) => saveResp);
     });
   }
-}
+};
 
 //* Запрос удаления карточки по ее Id
-function deleteCard(cardId) {
-  // console.log(`del cards/${cardId}`);
+const deleteCard = (cardId) => {
   return httpBaseQuery({
     url: `${BASE_URL}cards/${cardId}`,
     method: "DELETE",
     headers: { authorization: API_TOKEN },
   });
-}
+};
 
 //* Запрос данных своего профиля
-function getProfile() {
+const getProfile = () => {
   return httpQuery({ endURL: "users/me" });
-}
+};
 
 //* Изменение профиля
-function setProfile(body) {
+const setProfile = (body) => {
   return httpQuery({
     endURL: "users/me",
     method: "PATCH",
@@ -78,20 +75,20 @@ function setProfile(body) {
     },
     body,
   });
-}
+};
 
 //* Запрос MIME-типа в заголовке
-function getHeaders(url) {
+const getHeaders = (url) => {
   return httpBaseQuery({
     url,
     method: "HEAD",
     mode: "cors", // для кросс-доменных запросов
     cache: "no-cache", // игнорируем кеш
   });
-}
+};
 
 //* Изменение аватара профиля
-function setProfileAvatar(body) {
+const setProfileAvatar = (body) => {
   return httpQuery({
     endURL: "users/me/avatar",
     method: "PATCH",
@@ -100,15 +97,15 @@ function setProfileAvatar(body) {
     },
     body,
   });
-}
+};
 
-function evaluateCard(cardId, like) {
+const evaluateCard = (cardId, like) => {
   return httpBaseQuery({
     url: `${BASE_URL}cards/likes/${cardId}`,
     method: like ? "PUT" : "DELETE",
     headers: { authorization: API_TOKEN },
   });
-}
+};
 
 export {
   getCards,

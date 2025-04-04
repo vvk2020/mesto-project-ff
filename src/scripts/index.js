@@ -13,6 +13,7 @@ import {
   getHeaders,
   saveCard,
   deleteCard,
+  evaluateCard,
 } from "../components/api.js";
 
 //! Профиль
@@ -183,6 +184,7 @@ function handleNewCardSubmit(evt) {
           const newCard = createCard(respData, profile._id, {
             onShow: handleShowCard,
             onDelete: handleDeleteCard,
+            onLike: handleLikeCard,
           });
           // Добавление созданной карточки в начало списка
           if (newCard && cardsContainer) cardsContainer.prepend(newCard);
@@ -339,12 +341,31 @@ function handleDeleteCard(cardId) {
   }
 }
 
+function handleLikeCard(cardId, like) {
+  // Запрос на постановку/удаление like (true/false)
+  return evaluateCard(cardId, like)
+    .then((resp) => {
+      if (resp.ok) return resp.json();
+      return Promise.reject(resp.status);
+    })
+    .then((card) => {
+      // Воврат количества like карточки
+      if (card.likes && Array.isArray(card.likes))
+        return Promise.resolve(card.likes.length);
+      return Promise.reject('likes[] отсутствует');
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+}
+
 //! Вывод карточек на страницу
 const appendCards = (cardList, cards) => {
   cards.forEach((card) => {
     const newCard = createCard(card, profile._id, {
       onShow: handleShowCard,
       onDelete: handleDeleteCard,
+      onLike: handleLikeCard,
     });
     if (newCard) cardList.append(newCard);
   });

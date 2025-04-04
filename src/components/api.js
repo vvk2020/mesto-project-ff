@@ -55,7 +55,7 @@ function saveCard(body) {
 
 //* Запрос удаления карточки по ее Id
 function deleteCard(cardId) {
-  console.log(`del cards/${cardId}`);
+  // console.log(`del cards/${cardId}`);
   return httpBaseQuery({
     url: `${BASE_URL}cards/${cardId}`,
     method: "DELETE",
@@ -102,6 +102,14 @@ function setProfileAvatar(body) {
   });
 }
 
+function evaluateCard(cardId, like) {
+  return httpBaseQuery({
+    url: `${BASE_URL}cards/likes/${cardId}`,
+    method: like ? "PUT" : "DELETE",
+    headers: { authorization: API_TOKEN },
+  });
+}
+
 export {
   getCards,
   getProfile,
@@ -110,4 +118,5 @@ export {
   getHeaders,
   saveCard,
   deleteCard,
+  evaluateCard,
 };

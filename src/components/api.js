@@ -101,10 +101,9 @@ const setProfileAvatar = (body) => {
 };
 
 const evaluateCard = (cardId, like) => {
-  return httpBaseQuery({
-    url: `${BASE_URL}cards/likes/${cardId}`,
+  return httpQuery({
+    endURL: `cards/likes/${cardId}`,
     method: like ? "PUT" : "DELETE",
-    headers: { authorization: API_TOKEN },
   });
 };
 

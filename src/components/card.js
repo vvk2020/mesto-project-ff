@@ -41,7 +41,7 @@ const createCard = (card, profileId, { onShow, onDelete, onLike } = {}) => {
           },
           { once: true }
         );
-      } else deleteButton.style.display = "none";
+      } else deleteButton.remove();
     }
 
     // Обработка like/dislike карточки по кнопке 🤍

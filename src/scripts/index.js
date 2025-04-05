@@ -158,12 +158,12 @@ function handleEditProfileSubmit(evt) {
     setProfile(data)
       .then((profileData) => {
         renderProfile(profileData);
+        closeModal(profilePopup);
       })
       .catch((err) => {
         console.log(err); // вывод ошибкb в консоль
       })
       .finally(() => {
-        closeModal(profilePopup);
         toggleSubmitButtonText(profilePopup); // toggle текста submit-кнопки ("Схранить")
       });
   } else closeModal(profilePopup);
@@ -187,13 +187,13 @@ function handleNewCardSubmit(evt) {
           });
           // Добавление созданной карточки в начало списка
           if (newCard && cardsContainer) cardsContainer.prepend(newCard);
+          closeModal(newCardPopup);
         }
       })
       .catch((err) => {
         console.log("Ошибка сохранения карточки:", err); // вывод ошибкb в консоль
       })
       .finally(() => {
-        closeModal(newCardPopup);
         toggleSubmitButtonText(newCardPopup); // toggle текста submit-кнопки ("Схранить")
       });
   } else closeModal(newCardPopup);
@@ -221,12 +221,12 @@ function handleAvatarSubmit(evt) {
         })
         .then((avatarData) => {
           renderProfile(avatarData); // вывод данных профиля и его аватар на страницу
+          closeModal(avatarPopup);
         })
         .catch((err) => {
           console.log("Ошибка обновления аватар:", err);
         })
         .finally(() => {
-          closeModal(avatarPopup);
           toggleSubmitButtonText(avatarPopup); // toggle текста submit-кнопки ("Схранить")
         });
     } else closeModal(avatarPopup);
@@ -237,17 +237,14 @@ function handleCardDelSubmit(evt) {
   evt.preventDefault(); // блокировка стандартной обработки формы
   if ("cardId" in evt.target.dataset) {
     const cardId = evt.target.dataset.cardId;
-
     deleteCard(cardId)
       .then((resp) => {
         if (!resp.ok) return Promise.reject(resp.status);
+        closeModal(cardDelConfirmPopup);
         removeCard(cardId); // удаление карточки со страницы
       })
       .catch((err) => {
         console.log("Ошибка удаления карточки:", err);
-      })
-      .finally(() => {
-        closeModal(cardDelConfirmPopup);
       });
     // Удаление аттрибута, хранящего Id карточки
     delete evt.target.dataset.cardId;
@@ -263,12 +260,9 @@ function toggleSubmitButtonText(popup) {
       'button[type="submit"].button.popup__button'
     );
     if (button) {
-      const textMap = {
-        Сохранить: "Сохранение...",
-        "Сохранение...": "Сохранить",
-      };
-      button.textContent =
-        textMap[button.textContent.trim()] || button.textContent;
+      if (button.textContent.trim() === "Сохранить")
+        button.textContent = "Сохранение...";
+      else button.textContent = "Сохранить";
     }
   }
 }
@@ -341,15 +335,10 @@ function handleDeleteCard(cardId) {
 function handleLikeCard(cardId, like) {
   // Запрос на постановку/удаление like (true/false)
   return evaluateCard(cardId, like)
-    .then((resp) => {
-      if (resp.ok) return resp.json();
-      return Promise.reject(resp.status);
-    })
     .then((card) => {
       // Воврат количества like карточки
       if (card.likes && Array.isArray(card.likes))
         return Promise.resolve(card.likes.length);
-      return Promise.reject("likes[] отсутствует");
     })
     .catch((err) => {
       return Promise.reject(err);
@@ -388,12 +377,12 @@ const initializeApp = () => {
       if (resps[0]) {
         profile.data = resps[0]; // обновлени локальных данных
         renderProfile(resps[0]);
-      } else return Promise.reject("Ошибка запроса данных профиля");
+      }
       // Обработка promise запроса данных карточек мест
       if (resps[1] && Array.isArray(resps[1]) && resps[1].length > 0) {
         // Добавление карточек, полученных сс сервера
         appendCards(cardsContainer, resps[1]);
-      } else return Promise.reject("Ошибка запроса карточек мест");
+      }
     })
     .catch((err) => {
       console.log(err); // вывод ошибкb в консоль
